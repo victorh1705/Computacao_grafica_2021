@@ -51,8 +51,8 @@ var list = {
     'Aula 01': {
       'Exercícios': {
         'Exercícios 01': 'html/aula01_exercicio01',
-        'Exercícios 02': 'html/aula01_exerciocio01',
-        'Exercícios 03': 'html/aula01_exerciocio01',
+        'Exercícios 02': 'html/aula01_exercicio02',
+        'Exercícios 03': 'html/aula01_exercicio03',
       },
     },
   },
