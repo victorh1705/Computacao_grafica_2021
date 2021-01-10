@@ -60,5 +60,10 @@ var list = {
         'Exercícios 04': 'html/aula02_exercicio04',
       },
     },
+    'Aula 03': {
+      'Exercícios': {
+        'Exercícios 05': 'html/aula03_exercicio05',
+      },
+    },
   },
 };
