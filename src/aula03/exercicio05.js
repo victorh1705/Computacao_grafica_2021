@@ -3,12 +3,12 @@ function main()
   var stats = initStats();          // To show FPS information
   var scene = new THREE.Scene();    // Create main scene
   var renderer = initRenderer();    // View function in util/utils
-  var camera = initCamera(new THREE.Vector3(7, 7, 7)); // Init camera in this position
+  var camera = initCamera(new THREE.Vector3(12, 12, 12)); // Init camera in this position
   var light  = initDefaultLighting(scene, new THREE.Vector3(7, 7, 7));
   var trackballControls = new THREE.TrackballControls( camera, renderer.domElement );
 
   // Set angles of rotation
-  var angle = [-1.57, 0]; // In degreesToRadians
+  var angle = [-1.57, 0, 0]; // In degreesToRadians
 
   // Show world axes
   var axesHelper = new THREE.AxesHelper( 12 );
@@ -58,6 +58,7 @@ function main()
   {
     // More info:
     // https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
+    s1.matrixAutoUpdate = false;
     c1.matrixAutoUpdate = false;
     s2.matrixAutoUpdate = false;
     c2.matrixAutoUpdate = false;
@@ -67,6 +68,7 @@ function main()
     var mat4 = new THREE.Matrix4();
 
     // resetting matrices
+    s1.matrix.identity();
     c1.matrix.identity();
     s2.matrix.identity();
     c2.matrix.identity();
