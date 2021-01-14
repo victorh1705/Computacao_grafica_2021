@@ -2,16 +2,18 @@ function main() {
   var stats = initStats();          // To show FPS information
   var scene = new THREE.Scene();    // Create main scene
   var renderer = initRenderer();    // View function in util/utils
-  var camera = initCamera(new THREE.Vector3(0, -40, 25)); // Init camera in this position
+  var camera = initCamera(new THREE.Vector3(0, -80, 45)); // Init camera in this position
 
   // Enable mouse rotation, pan, zoom etc.
   var trackballControls = new THREE.TrackballControls(camera, renderer.domElement);
 
 
-  var posicao = new THREE.Vector3(10.0, 15.0, 3);
-  var x = y = 0;
+  var x = 0;
+  var y = 0;
   var z = 3
-  var animationOn = false; // control if animation is on or of
+  var frames = 30;
+  var steps = [0, 0., 0., 0.]
+  var moverOn = false; // control if animation is on or of
 
   // Show axes (parameter is size of each axis)
   var axesHelper = new THREE.AxesHelper(12);
@@ -49,31 +51,37 @@ function main() {
   function movendoEsfera() {
 
 
-    if (animationOn) {
-      var mat4 = new THREE.Matrix4();
-      posicao.x = x
-      posicao.y = y
-      posicao.z = z
-      sphere.position.set(x, y, z);
+    if (moverOn) {
+      if (steps[0] >= frames) {
+        moverOn = false;
+        return;
+      }
 
-      // sphere.matrix.multiply(mat4.makeTranslation(x, y, z)); // T1
+      steps[0] += 1;
+
+      sphere.position.x += steps[1];
+      sphere.position.y += steps[2];
+      sphere.position.z += steps[3];
     }
   }
 
   function buildInterface() {
     var controls = new function () {
       this.onChangeAnimation = function () {
-        if (!animationOn) animationOn = !animationOn;
+        if (!moverOn) {
+          moverOn = !moverOn;
+
+          steps[0] = 0
+          steps[1] = (x - sphere.position.x) / frames;
+          steps[2] = (y - sphere.position.y) / frames;
+          steps[3] = (z - sphere.position.z) / frames;
+        }
       };
-      this.speed = 0.05;
+      this.frames = 30;
 
       this.x = 0.0;
       this.y = 0.0;
       this.z = 3.0;
-
-      this.changeSpeed = function () {
-        speed = this.speed;
-      };
 
       this.changeX = function () {
         x = this.x;
@@ -86,27 +94,36 @@ function main() {
       this.changeZ = function () {
         z = this.z;
       }
+
+      this.changeFrames = function () {
+        frames = this.frames;
+      }
     };
 
     // GUI interface
     var gui = new dat.GUI();
-    gui.add(controls, 'onChangeAnimation', true)
-      .name('Animation On/Off');
     gui.add(controls, 'x', -25, 25)
       .onChange(function (e) {
         controls.changeX()
       })
-      .name('Mude o valor x')
+      .name('Mude o valor x');
     gui.add(controls, 'y', -25, 25)
       .onChange(function (e) {
         controls.changeY()
       })
-      .name('Mude o valor y')
+      .name('Mude o valor y');
     gui.add(controls, 'z', 0, 25)
       .onChange(function (e) {
         controls.changeZ()
       })
       .name('Mude o valor z');
+    gui.add(controls, 'frames', 30, 120)
+      .onChange(function (e) {
+        controls.changeFrames()
+      })
+      .name('frames');
+    gui.add(controls, 'onChangeAnimation', moverOn)
+      .name('Mover');
   }
 
 
