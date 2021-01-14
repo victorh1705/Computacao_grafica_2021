@@ -7,6 +7,12 @@ function main() {
   // Enable mouse rotation, pan, zoom etc.
   var trackballControls = new THREE.TrackballControls(camera, renderer.domElement);
 
+
+  var posicao = new THREE.Vector3(10.0, 15.0, 3);
+  var x = y = 0;
+  var z = 3
+  var animationOn = false; // control if animation is on or of
+
   // Show axes (parameter is size of each axis)
   var axesHelper = new THREE.AxesHelper(12);
   scene.add(axesHelper);
@@ -32,63 +38,6 @@ function main() {
   // add the sphere to the scene
   scene.add(sphere);
 
-
-  function buildInterface()
-  {
-    var controls = new function ()
-    {
-      this.onChangeAnimation = function(){
-        animationOn = !animationOn;
-      };
-      this.speed = 0.05;
-
-      this.x = 0.0;
-      this.y = 0.0;
-      this.z = 3.0;
-
-      this.changeSpeed = function(){
-        speed = this.speed;
-      };
-
-      this.changeX = function (){
-        x = this.x;
-      }
-
-      this.changeY = function (){
-        y = this.y;
-      }
-
-      this.changeZ = function (){
-        z = this.z;
-      }
-    };
-
-    // GUI interface
-    var gui = new dat.GUI();
-    gui.add(controls, 'onChangeAnimation',true)
-      .name("Animation On/Off");
-    gui.add(controls, 'x', 0, 25)
-      .onChange(function(e) { controls.changeX() })
-      .name("Mude o valor x")
-    gui.add(controls, 'y', 0, 25)
-      .onChange(function(e) { controls.changeY() })
-      .name("Mude o valor y")
-    gui.add(controls, 'z', 0, 25)
-      .onChange(function(e) { controls.changeZ() })
-      .name("Mude o valor z");
-  }
-
-
-  // // Use this to show information onscreen
-  // controls = new InfoBox();
-  // controls.add('Basic Scene');
-  // controls.addParagraph();
-  // controls.add('Use mouse to interact:');
-  // controls.add('* Left button to rotate');
-  // controls.add('* Right button to translate (pan)');
-  // controls.add('* Scroll to zoom in/out.');
-  // controls.show();
-
   // Listen window size changes
   window.addEventListener('resize', function () {
     onWindowResize(camera, renderer)
@@ -97,8 +46,73 @@ function main() {
   buildInterface();
   render();
 
+  function movendoEsfera() {
+
+
+    if (animationOn) {
+      var mat4 = new THREE.Matrix4();
+      posicao.x = x
+      posicao.y = y
+      posicao.z = z
+      sphere.position.set(x, y, z);
+
+      // sphere.matrix.multiply(mat4.makeTranslation(x, y, z)); // T1
+    }
+  }
+
+  function buildInterface() {
+    var controls = new function () {
+      this.onChangeAnimation = function () {
+        if (!animationOn) animationOn = !animationOn;
+      };
+      this.speed = 0.05;
+
+      this.x = 0.0;
+      this.y = 0.0;
+      this.z = 3.0;
+
+      this.changeSpeed = function () {
+        speed = this.speed;
+      };
+
+      this.changeX = function () {
+        x = this.x;
+      }
+
+      this.changeY = function () {
+        y = this.y;
+      }
+
+      this.changeZ = function () {
+        z = this.z;
+      }
+    };
+
+    // GUI interface
+    var gui = new dat.GUI();
+    gui.add(controls, 'onChangeAnimation', true)
+      .name('Animation On/Off');
+    gui.add(controls, 'x', -25, 25)
+      .onChange(function (e) {
+        controls.changeX()
+      })
+      .name('Mude o valor x')
+    gui.add(controls, 'y', -25, 25)
+      .onChange(function (e) {
+        controls.changeY()
+      })
+      .name('Mude o valor y')
+    gui.add(controls, 'z', 0, 25)
+      .onChange(function (e) {
+        controls.changeZ()
+      })
+      .name('Mude o valor z');
+  }
+
+
   function render() {
     stats.update(); // Update FPS
+    movendoEsfera();
     trackballControls.update(); // Enable mouse movements
     requestAnimationFrame(render);
     renderer.render(scene, camera) // Render scene
