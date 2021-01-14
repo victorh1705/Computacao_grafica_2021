@@ -22,16 +22,6 @@ function main() {
   // add the plane to the scene
   scene.add(plane);
 
-  // create a cube
-  var cube1 = new THREE.Mesh(
-    new THREE.BoxGeometry(4, 4, 4),
-    new THREE.MeshNormalMaterial(),
-  );
-  // position the cube
-  cube1.position.set(0.0, 0.0, 2.0);
-  // add the cube to the scene
-  scene.add(cube1);
-
   // create a sphere
   const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(3, 32, 32),
@@ -42,32 +32,69 @@ function main() {
   // add the sphere to the scene
   scene.add(sphere);
 
-  // create a cylinder
-  const cylinder = new THREE.Mesh(
-    new THREE.CylinderGeometry(3, 3, 10, 32),
-    new THREE.MeshNormalMaterial(),
-  );
-  // position the cylinder
-  cylinder.position.set(-15.0, 7.0, 5);
-  cylinder.rotateX(1.57)
-  // add the cylinder to the scene
-  scene.add(cylinder);
 
-  // Use this to show information onscreen
-  controls = new InfoBox();
-  controls.add('Basic Scene');
-  controls.addParagraph();
-  controls.add('Use mouse to interact:');
-  controls.add('* Left button to rotate');
-  controls.add('* Right button to translate (pan)');
-  controls.add('* Scroll to zoom in/out.');
-  controls.show();
+  function buildInterface()
+  {
+    var controls = new function ()
+    {
+      this.onChangeAnimation = function(){
+        animationOn = !animationOn;
+      };
+      this.speed = 0.05;
+
+      this.x = 0.0;
+      this.y = 0.0;
+      this.z = 3.0;
+
+      this.changeSpeed = function(){
+        speed = this.speed;
+      };
+
+      this.changeX = function (){
+        x = this.x;
+      }
+
+      this.changeY = function (){
+        y = this.y;
+      }
+
+      this.changeZ = function (){
+        z = this.z;
+      }
+    };
+
+    // GUI interface
+    var gui = new dat.GUI();
+    gui.add(controls, 'onChangeAnimation',true)
+      .name("Animation On/Off");
+    gui.add(controls, 'x', 0, 25)
+      .onChange(function(e) { controls.changeX() })
+      .name("Mude o valor x")
+    gui.add(controls, 'y', 0, 25)
+      .onChange(function(e) { controls.changeY() })
+      .name("Mude o valor y")
+    gui.add(controls, 'z', 0, 25)
+      .onChange(function(e) { controls.changeZ() })
+      .name("Mude o valor z");
+  }
+
+
+  // // Use this to show information onscreen
+  // controls = new InfoBox();
+  // controls.add('Basic Scene');
+  // controls.addParagraph();
+  // controls.add('Use mouse to interact:');
+  // controls.add('* Left button to rotate');
+  // controls.add('* Right button to translate (pan)');
+  // controls.add('* Scroll to zoom in/out.');
+  // controls.show();
 
   // Listen window size changes
   window.addEventListener('resize', function () {
     onWindowResize(camera, renderer)
   }, false);
 
+  buildInterface();
   render();
 
   function render() {
