@@ -65,5 +65,11 @@ var list = {
         'Exercícios 05': 'html/aula03_exercicio05',
       },
     },
+    'Aula 05 - Animações': {
+      'Exercícios': {
+        'Exercícios 01': 'html/aula05_exercicio01',
+        'Exercícios 02': 'html/aula05_exercicio02',
+      },
+    },
   },
 };
