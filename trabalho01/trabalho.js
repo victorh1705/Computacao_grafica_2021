@@ -227,6 +227,8 @@ function main() {
 
     keyboard.update();
 
+    if (keyboard.down('space')) changeProjection();
+
     var angle = degreesToRadians(10);
     var rotAxis = new THREE.Vector3(0, 0, 1); // Set Z axis
 
@@ -253,6 +255,43 @@ function main() {
     controls.add(anglecarro);
     controls.show();
   }
+
+  function changeProjection() {
+    // posicao anterior
+    let pos = new THREE.Vector3().copy(camera.position);
+
+    if (camera instanceof THREE.PerspectiveCamera) {
+      var s = 72; // Estimated size for orthographic projection
+      camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
+        window.innerHeight / s, window.innerHeight / -s, -s, s);
+
+      camera.position.copy(pos);
+      camera.lookAt(p1.position);
+
+      plane.visible = false;
+
+    } else {
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+      var offset = new THREE.Vector3(-45, 0, 20);
+      var offSetLookAt = new THREE.Vector3(60, 0, 10);
+
+      offset.add(p1.position);
+      offSetLookAt.add(p1.position);
+
+      camera.position.copy(offset);
+      camera.lookAt(offSetLookAt);
+
+      plane.visible = true;
+    }
+
+    let up = new THREE.Vector3(0, 0, 1);
+    camera.up.copy(up);
+
+    trackballControls = initTrackballControls(camera, renderer);
+    // light.position.copy( camera.position ); // light collow camera
+  }
+
 
   function render() {
     stats.update(); // Update FPS
