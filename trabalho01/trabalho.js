@@ -71,6 +71,7 @@ function main()
   p1.add(p3);
   p3.position.set(5,0,0);
 
+  
   // vermelho, verde e azul (x,y,z)
   // Criação do Eixo da frente
   var c1 = createCylinder(0.3,6);
