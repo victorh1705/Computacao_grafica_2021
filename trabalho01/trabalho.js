@@ -14,6 +14,9 @@ function main() {
   // var d = Clock.getDelta();
   var d = 0.03;
 
+  var isInspecao = false;
+  var posicaoCarro = new THREE.Vector3(0, 0, 1);
+
   // Configurando a luz
   let light = new THREE.DirectionalLight(0xffffff);
   light.position.set(0, 1, 1).normalize();
@@ -260,10 +263,10 @@ function main() {
     // posicao anterior
     let pos = new THREE.Vector3().copy(camera.position);
 
-    if (camera instanceof THREE.PerspectiveCamera) {
-      var s = 72; // Estimated size for orthographic projection
-      camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
-        window.innerHeight / s, window.innerHeight / -s, -s, s);
+    if (isInspecao) {
+      posicaoCarro.copy(p1.position);
+
+      p1.position.copy(new THREE.Vector3());
 
       camera.position.copy(pos);
       camera.lookAt(p1.position);
@@ -271,7 +274,7 @@ function main() {
       plane.visible = false;
 
     } else {
-      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      p1.position.copy(posicaoCarro)
 
       var offset = new THREE.Vector3(-45, 0, 20);
       var offSetLookAt = new THREE.Vector3(60, 0, 10);
@@ -285,11 +288,13 @@ function main() {
       plane.visible = true;
     }
 
+    isInspecao = !isInspecao;
+
     let up = new THREE.Vector3(0, 0, 1);
     camera.up.copy(up);
 
     trackballControls = initTrackballControls(camera, renderer);
-    // light.position.copy( camera.position ); // light collow camera
+    lightFollowingCamera(light, camera)
   }
 
 
@@ -297,6 +302,7 @@ function main() {
     stats.update(); // Update FPS
     acelera();
     trackballControls.update();
+    lightFollowingCamera(light, camera) // Makes light follow the camera
     keyboardUpdate();
     requestAnimationFrame(render); // Show events
     renderer.render(scene, camera) // Render scene
