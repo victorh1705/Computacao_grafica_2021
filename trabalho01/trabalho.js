@@ -14,7 +14,12 @@ function main()
   var desloc = 0;
   // var d = Clock.getDelta();
   var d = 0.03;
-
+  
+  // Configurando luz
+  var light = new THREE.DirectionalLight( 0xffffff );
+  light.position.set( 0, 1, 10 ).normalize();
+  scene.add(light);
+  
   // Show text information onscreen
   showInformation();
 
