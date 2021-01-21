@@ -17,7 +17,7 @@ function main()
   
   // Configurando luz
   var light = new THREE.DirectionalLight( 0xffffff );
-  light.position.set( 0, 1, 10 ).normalize();
+  light.position.set( 0, 1, 1 ).normalize();
   scene.add(light);
   
   // Show text information onscreen
@@ -230,12 +230,13 @@ function main()
     var angle = degreesToRadians(10);
     var rotAxis = new THREE.Vector3(0,0,1); // Set Z axis
 
-    var meucu = 0;
+    if ( keyboard.pressed("right") )     anglecarro -= 0.5;
+    if ( keyboard.pressed("left") )    anglecarro += 0.5;
+    if ( keyboard.pressed("up") )       sc += 1;
+    if ( keyboard.pressed("down"))     sc -= 1;
 
-    if ( keyboard.pressed("left") )     anglecarro -= 0.1;
-    if ( keyboard.pressed("right") )    anglecarro += 0.1;
-    if ( keyboard.pressed("up") )       aceleracarro();
-    if ( keyboard.pressed("down") && sc > 0)     sc -= 1;
+    if ( keyboard.pressed("D") )  p1.rotateOnAxis(rotAxis,  angle );
+    if ( keyboard.pressed("A") )  p1.rotateOnAxis(rotAxis, -angle );
 
     //if ( keyboard.pressed("A") )  camera1;
     //if ( keyboard.pressed("D") )  camera2;
