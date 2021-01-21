@@ -51,51 +51,92 @@ function main()
   // === Início da Criação do Carro ==
 
 
-  // Corpo
-  var p1 = createCube(8,3,1);
+  // Eixo central do carro
+  var p1 = createCube(8,3,1,0x363636);
   scene.add(p1);
   p1.position.set(2,0,1);
 
-  // Corpo meio
-  var p4 = createCube(2,5,1);
+  // Traseira
+  var p2 = createCube(2,5,0.5,0x006400);
+  p1.add(p2);
+  p2.position.set(-3,0,3.4);
+  // esq
+  var p3 = createCube(2,0.6,3.6,0x006400);
+  p1.add(p3);
+  p3.position.set(-3,1.4,1.4);
+  // dir
+  var p4 = createCube(2,0.6,3.6,0x006400);
   p1.add(p4);
-  p4.position.set(1,0,0);
+  p4.position.set(-3,-1.4,1.4);
+
+  // Proteção ao Motorista
+  //tras
+  var p5 = createCube(0.4,2.8,1.6,0x0000CD);
+  p1.add(p5);
+  p5.position.set(3.8,0,1);
+  //frente
+  var p6 = createCube(0.4,2.8,1.6,0x0000CD);
+  p1.add(p6);
+  p6.position.set(-1.8,0,1);
+  //dir
+  var p7 = createCube(6,0.4,1.6,0x191970);
+  p1.add(p7);
+  p7.position.set(1,1.6,1);
+  //esq
+  var p8 = createCube(6,0.4,1.6,0x191970);
+  p1.add(p8);
+  p8.position.set(1,-1.6,1);
 
   // Proteção da frente
-  var p2 = createCube(2,5,1);
-  p1.add(p2);
-  p2.position.set(-3,0,0);
+  var p9 = createCube(1.4,5,1,0x191970);
+  p1.add(p9);
+  p9.position.set(-3.4,0,0);
+  // complemento
+  var p10 = createCube(2,3.6,1.6,0x191970);
+  p1.add(p10);
+  p10.position.set(5,0,1);
 
-  // Plano base do carro
-  var p3 = createCube(2,5,1);
-  p1.add(p3);
-  p3.position.set(5,0,0);
+  // Proteção da frente
+  var p11 = createCube(2,5,1,0x191970);
+  p1.add(p11);
+  p11.position.set(5,0,0);
 
-  
+  //bancos
+  //assento
+  var p12 = createCube(2,2,1,0x000000);
+  p1.add(p12);
+  p12.position.set(0,0,1);
+  // encosto
+  var p13 = createCube(0.4,2,3,0x000000);
+  p1.add(p13);
+  p13.position.set(-1,0,2);
+
   // vermelho, verde e azul (x,y,z)
+
+  // Criação das rodas do carro
   // Criação do Eixo da frente
-  var c1 = createCylinder(0.3,6);
+  var c1 = createCylinder(0.3,6,0x708090);
   p1.add(c1);
   c1.position.set(-2, 0, 0);
 
-  var c2 = createCylinder(1,1);
+  var c2 = createCylinder(1,1,0x1C1C1C);
   c2.position.set(0, 3.0, 0);
   c1.add(c2);
 
-  var c3 = createCylinder(1,1);
+  var c3 = createCylinder(1,1,0x1C1C1C);
   c1.add(c3);
   c3.position.set(0, -3.0, 0);
 
   // Criação do Eixo traseiro
-  var c4 = createCylinder(0.3,6);
+  var c4 = createCylinder(0.3,6,0x708090);
   p1.add(c4);
   c4.position.set(4, 0, 0);
 
-  var c5 = createCylinder(1,1);
+  var c5 = createCylinder(1,1,0x1C1C1C);
   c5.position.set(0, 3.0, 0);
   c4.add(c5);
 
-  var c6 = createCylinder(1,1);
+  var c6 = createCylinder(1,1,0x1C1C1C);
   c6.position.set(0, -6, 0);
   c5.add(c6);
 
