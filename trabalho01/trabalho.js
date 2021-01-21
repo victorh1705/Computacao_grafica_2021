@@ -170,11 +170,12 @@ function main()
     const cube = new THREE.Mesh( geometry, material );
     return cube;
   }
+
   function acelera()
   {
     // More info:
     // https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
-    p1.matrixAutoUpdate = true;
+    p1.matrixAutoUpdate = false;
     c1.matrixAutoUpdate = false;
     c4.matrixAutoUpdate = false;
 
@@ -189,19 +190,15 @@ function main()
     c1.matrix.multiply(mat4.makeTranslation(-2.0,0.0,0));
     c4.matrix.multiply(mat4.makeTranslation(4.0,0.0,0.0));
 
+    // Movimentação
+    p1.matrix.multiply(mat4.makeTranslation(p1.position.x+sc*d,p1.position.y+sc*d,0));
 
-    // deslocamento Progressivo
-    //cylinder.matrix.multiply(mat4.makeRotationZ(angle)); // R1
-    //p1.matrix.multiply(mat4.makeTranslation(meucu, 0, 0));
-
-    // Ângulo do carro
+    // Giro do carro
     p1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro)));
+    c1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro/8)));
+    c4.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro/8)));
 
-    // Movendo as rodas
-    if (anglecarro <= 10 || anglecarro >= -10){ // Limitando o giro das rodas
-      c1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro)));
-      c4.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro)));
-    }
+    
   }
 
   function atualizap(){
