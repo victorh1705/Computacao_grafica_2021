@@ -147,23 +147,23 @@ function main()
   window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
 
   render();
+  
+  function createCylinder(d,l,colorc)
+  {  
+    // diamentro,diametro,largura
+    const geometry = new THREE.CylinderGeometry( d, d, l, 32 );
+    const material = new THREE.MeshPhongMaterial( { ambient: 0x050505, color: colorc, specular: 0x555555, shininess: 30 } );
+    const cylinder = new THREE.Mesh( geometry, material );
+    return cylinder;
+  }
 
-  function createCube(x, y, z)
+  function createCube(x, y, z,colorobj)
   {
     // largura, profundidade e altura
     const geometry = new THREE.BoxGeometry(x,y,z);
-    const material = new THREE.MeshNormalMaterial( {color: 0x00ff00} );
+    const material = new THREE.MeshPhongMaterial( { ambient: 0x050505, color: colorobj, specular: 0x555555, shininess: 30 } );
     const cube = new THREE.Mesh( geometry, material );
     return cube;
-  }
-
-  function createCylinder(d,l)
-  {
-    // diamentro,diametro,largura
-    const geometry = new THREE.CylinderGeometry( d, d, l, 32 );
-    const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-    const cylinder = new THREE.Mesh( geometry, material );
-    return cylinder;
   }
   function acelera()
   {
