@@ -12,7 +12,7 @@ function main() {
   var ac = 1; // aceleração do carro
   var desloc = 0;
   // var d = Clock.getDelta();
-  var d = 0.03;
+  var d = 0.3;
 
   var isInspecao = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
@@ -36,7 +36,7 @@ function main() {
   scene.add(axesHelper);
 
   // create the ground plane
-  var planeGeometry = new THREE.PlaneGeometry(200, 200);
+  var planeGeometry = new THREE.PlaneGeometry(2000, 2000);
   planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
   var planeMaterial = new THREE.MeshBasicMaterial({
     color: 'rgb(150, 150, 150)',
@@ -193,7 +193,11 @@ function main() {
     c4.matrix.multiply(mat4.makeTranslation(4.0, 0.0, 0.0));
 
     // Movimentação
-    p1.matrix.multiply(mat4.makeTranslation(p1.position.x+sc*d,p1.position.y+sc*d,0));
+    console.log(`p1 :`, p1.rotation)
+    p1.matrix.multiply(mat4.makeTranslation(p1.position.x + sc * d * Math.cos(degreesToRadians(anglecarro)),
+      p1.position.y + sc * d * Math.sin(degreesToRadians(anglecarro)),
+      0));
+    console.log(`p1 depois:`, p1.rotation)
 
     // Giro do carro
     p1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro)));
