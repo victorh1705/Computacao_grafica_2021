@@ -218,7 +218,7 @@ function initCamera(initialPosition) {
     var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.copy(position);
     camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
-    //camera.up.set(0, 1, 0); // That's the default value
+    camera.up.set(0, 0, 1); // That's the default value
     return camera;
 }
 

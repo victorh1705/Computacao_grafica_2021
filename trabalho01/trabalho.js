@@ -2,8 +2,10 @@ function main() {
   var stats = initStats();          // To show FPS information
   var scene = new THREE.Scene();    // Create main scene
   var renderer = initRenderer();    // View function in util/utils
-  var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
+  var camera = initCamera(new THREE.Vector3(-45, 0, 20)); // Init camera in this position
   var clock = new THREE.Clock();
+  // window.scene = scene
+  // window.THREE = THREE
 
   // Use to scale the cube
   var scale = 1.0;
@@ -124,6 +126,7 @@ function main() {
   // Criação do Eixo da frente
   var c1 = createCylinder(0.3, 6, 0x708090);
   p1.add(c1);
+  p1.add(camera)
   c1.position.set(-2, 0, 0);
 
   var c2 = createCylinder(1, 1, 0x1C1C1C);
@@ -187,27 +190,41 @@ function main() {
     c1.matrix.identity();  // reset
     c4.matrix.identity();
 
+
     // Ajustes
     p1.matrix.multiply(mat4.makeTranslation(0.0, 0.0, 1.0));
     c1.matrix.multiply(mat4.makeTranslation(-2.0, 0.0, 0));
     c4.matrix.multiply(mat4.makeTranslation(4.0, 0.0, 0.0));
 
     // Movimentação
-    console.log(`p1 :`, p1.rotation)
-    p1.matrix.multiply(mat4.makeTranslation(p1.position.x + sc * d * Math.cos(degreesToRadians(anglecarro)),
-      p1.position.y + sc * d * Math.sin(degreesToRadians(anglecarro)),
-      0));
-    console.log(`p1 depois:`, p1.rotation)
+    const x =  sc * d * Math.cos(degreesToRadians(anglecarro));
+    const y =  sc * d * Math.sin(degreesToRadians(anglecarro));
+
+    mat4.copyPosition(p1.matrix)
+    console.log('mat4 antes : ', mat4)
+    p1.matrix.multiply(mat4.makeTranslation(x, y, 0));
+    console.log('sc depois : ', x)
 
     // Giro do carro
     p1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro)));
-    c1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro/8)));
-    c4.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro/8)));
+    c1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro / 8)));
+    c4.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro / 8)));
 
+
+    var relativeCameraOffset = new THREE.Vector3(-45, 0, 20);
+
+    var cameraOffset = relativeCameraOffset.applyMatrix4( c1.matrixWorld );
+
+    camera.position.x = cameraOffset.x;
+    camera.position.y = cameraOffset.y;
+    camera.position.z = cameraOffset.z;
+    camera.lookAt( p1.position );
+    console.log('camera pos : ', camera.position) 
+    console.log('p1 pos : ', p1.position)
 
   }
 
-  function atualizap() {
+  function atualizao() {
     // px = p1.position.x + math.sin(desloc);
     // py = p1.position.y + math.cos(desloc);
   }
@@ -235,17 +252,17 @@ function main() {
     var angle = degreesToRadians(10);
     var rotAxis = new THREE.Vector3(0, 0, 1); // Set Z axis
 
-    if ( keyboard.pressed("right") )     anglecarro -= 0.5;
-    if ( keyboard.pressed("left") )    anglecarro += 0.5;
-    if ( keyboard.pressed("up") )       sc += 1;
-    if ( keyboard.pressed("down"))     sc -= 1;
+    if (keyboard.pressed('right')) anglecarro -= 0.5;
+    if (keyboard.pressed('left')) anglecarro += 0.5;
+    if (keyboard.pressed('up')) sc += 1;
+    if (keyboard.pressed('down')) sc -= 1;
 
-    if ( keyboard.pressed("D") )  p1.rotateOnAxis(rotAxis,  angle );
-    if ( keyboard.pressed("A") )  p1.rotateOnAxis(rotAxis, -angle );
+    if (keyboard.pressed('D')) p1.rotateOnAxis(rotAxis, angle);
+    if (keyboard.pressed('A')) p1.rotateOnAxis(rotAxis, -angle);
 
     //if ( keyboard.pressed("A") )  camera1;
     //if ( keyboard.pressed("D") )  camera2;
-    acelera();
+    // acelera();
   }
 
   function showInformation() {
@@ -277,10 +294,10 @@ function main() {
     } else {
       p1.position.copy(posicaoCarro)
 
-      var offset = new THREE.Vector3(-45, 0, 20);
-      var offSetLookAt = new THREE.Vector3(60, 0, 10);
-
+      let offset = new THREE.Vector3(-45, 0, 20);
       offset.add(p1.position);
+
+      let offSetLookAt = new THREE.Vector3(60, 0, 10);
       offSetLookAt.add(p1.position);
 
       camera.position.copy(offset);
@@ -298,13 +315,42 @@ function main() {
     lightFollowingCamera(light, camera)
   }
 
+  function trackCar() {
+
+    // camera.lookAt(p1.position)
+    // const offset = new THREE.Vector3(60, 0, 10);
+    // offset.add(p1.position);
+    // console.log('offset : ', offset)
+    // camera.position.copy(offset);
+
+    // if (isInspecao) {
+    //   // p1.position.copy(posicaoCarro)
+    //
+    //   const offset = new THREE.Vector3(-45, 0, 20);
+    //   offset.add(p1.position);
+    //
+    //   const offSetLookAt = new THREE.Vector3(60, 0, 10);
+    //   offSetLookAt.add(p1.position);
+    //
+    //   camera.position.copy(offset);
+    //   // camera.lookAt(offSetLookAt);
+    //
+    //   // camera.up.copy(new THREE.Vector3(0, 0, 1));
+    //
+    //   trackballControls = initTrackballControls(camera, renderer);
+    //   lightFollowingCamera(light, camera)
+    // }
+
+  }
+
 
   function render() {
     stats.update(); // Update FPS
     acelera();
+    trackCar();
     trackballControls.update();
-    lightFollowingCamera(light, camera) // Makes light follow the camera
     keyboardUpdate();
+    lightFollowingCamera(light, camera) // Makes light follow the camera
     requestAnimationFrame(render); // Show events
     renderer.render(scene, camera) // Render scene
   }
