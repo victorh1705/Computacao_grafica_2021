@@ -2,10 +2,12 @@ function main() {
   var stats = initStats();          // To show FPS information
   var scene = new THREE.Scene();    // Create main scene
   var renderer = initRenderer();    // View function in util/utils
-  var camera = initCamera(new THREE.Vector3(-45, 0, 20)); // Init camera in this position
-  var clock = new THREE.Clock();
-  // window.scene = scene
-  // window.THREE = THREE
+
+  var position = new THREE.Vector3(-45, 0, 20);
+  var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.copy(position);
+  camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
+  camera.up.set(0, 0, 1); // That's the default value
 
   // Use to scale the cube
   var scale = 1.0;
@@ -15,6 +17,8 @@ function main() {
   var desloc = 0;
   // var d = Clock.getDelta();
   var d = 0.3;
+
+  var cont = 0
 
   var isInspecao = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
@@ -123,7 +127,7 @@ function main() {
   // vermelho, verde e azul (x,y,z)
 
   // Criação das rodas do carro
-  // Criação do Eixo da frente
+  // Criação do Eixo da tras
   var c1 = createCylinder(0.3, 6, 0x708090);
   p1.add(c1);
   p1.add(camera)
@@ -137,7 +141,7 @@ function main() {
   c1.add(c3);
   c3.position.set(0, -3.0, 0);
 
-  // Criação do Eixo traseiro
+  // Criação do Eixo dianteiro
   var c4 = createCylinder(0.3, 6, 0x708090);
   p1.add(c4);
   c4.position.set(4, 0, 0);
@@ -177,92 +181,38 @@ function main() {
     return cube;
   }
 
-  function acelera() {
-    // More info:
-    // https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
-    p1.matrixAutoUpdate = false;
-    c1.matrixAutoUpdate = false;
-    c4.matrixAutoUpdate = false;
-
-    var mat4 = new THREE.Matrix4();
-
-    p1.matrix.identity();  // reset matrix
-    c1.matrix.identity();  // reset
-    c4.matrix.identity();
-
-
-    // Ajustes
-    p1.matrix.multiply(mat4.makeTranslation(0.0, 0.0, 1.0));
-    c1.matrix.multiply(mat4.makeTranslation(-2.0, 0.0, 0));
-    c4.matrix.multiply(mat4.makeTranslation(4.0, 0.0, 0.0));
-
-    // Movimentação
-    const x =  sc * d * Math.cos(degreesToRadians(anglecarro));
-    const y =  sc * d * Math.sin(degreesToRadians(anglecarro));
-
-    mat4.copyPosition(p1.matrix)
-    console.log('mat4 antes : ', mat4)
-    p1.matrix.multiply(mat4.makeTranslation(x, y, 0));
-    console.log('sc depois : ', x)
-
-    // Giro do carro
-    p1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro)));
-    c1.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro / 8)));
-    c4.matrix.multiply(mat4.makeRotationZ(degreesToRadians(anglecarro / 8)));
-
-
-    var relativeCameraOffset = new THREE.Vector3(-45, 0, 20);
-
-    var cameraOffset = relativeCameraOffset.applyMatrix4( c1.matrixWorld );
-
-    camera.position.x = cameraOffset.x;
-    camera.position.y = cameraOffset.y;
-    camera.position.z = cameraOffset.z;
-    camera.lookAt( p1.position );
-    console.log('camera pos : ', camera.position) 
-    console.log('p1 pos : ', p1.position)
-
-  }
-
-  function atualizao() {
-    // px = p1.position.x + math.sin(desloc);
-    // py = p1.position.y + math.cos(desloc);
-  }
-
-  function aceleracarro() {
-    if (keyboard.down('up') && sc < 100) {
-      sc = sc + 1;
-    }
-    p1.position.x -= sc * Math.cos(anglecarro) * d;
-    p1.position.y -= sc * Math.sin(anglecarro) * d;
-
-    //if(sc < 100){
-    //  sc = sc + ac;
-    //}
-    //desloc = sc + clock*getDelta();
-    //atualizap();
-  }
-
   function keyboardUpdate() {
+
+    var angle = degreesToRadians(10);
+    var rotAxis = new THREE.Vector3(0, 0, 1); // Set Z axis
 
     keyboard.update();
 
     if (keyboard.down('space')) changeProjection();
 
-    var angle = degreesToRadians(10);
-    var rotAxis = new THREE.Vector3(0, 0, 1); // Set Z axis
+    if (keyboard.pressed('D')) p1.rotateZ(-angle);
+    if (keyboard.pressed('A')) p1.rotateZ(angle);
 
-    if (keyboard.pressed('right')) anglecarro -= 0.5;
-    if (keyboard.pressed('left')) anglecarro += 0.5;
-    if (keyboard.pressed('up')) sc += 1;
-    if (keyboard.pressed('down')) sc -= 1;
+    if (!isInspecao) return
 
-    if (keyboard.pressed('D')) p1.rotateOnAxis(rotAxis, angle);
-    if (keyboard.pressed('A')) p1.rotateOnAxis(rotAxis, -angle);
+    if (keyboard.pressed('right')) {
+      p1.rotateZ(-angle);
+      if (cont > -10) {
+        cont--
+        c4.rotateZ(-angle / 8);
+      }
+    }
 
-    //if ( keyboard.pressed("A") )  camera1;
-    //if ( keyboard.pressed("D") )  camera2;
-    // acelera();
+    if (keyboard.pressed('left')) {
+      p1.rotateZ(angle);
+      if (cont < 10) {
+        cont++
+        c4.rotateZ(angle / 8);
+      }
+    }
+
+    if (keyboard.pressed('up')) p1.translateX(1);
+    if (keyboard.pressed('down')) p1.translateX(-1);
   }
 
   function showInformation() {
@@ -280,6 +230,8 @@ function main() {
   function changeProjection() {
     // posicao anterior
     let pos = new THREE.Vector3().copy(camera.position);
+
+    axesHelper.visible = false;
 
     if (isInspecao) {
       posicaoCarro.copy(p1.position);
@@ -317,11 +269,34 @@ function main() {
 
   function trackCar() {
 
-    // camera.lookAt(p1.position)
-    // const offset = new THREE.Vector3(60, 0, 10);
-    // offset.add(p1.position);
-    // console.log('offset : ', offset)
-    // camera.position.copy(offset);
+    if (!isInspecao) return
+
+    var position = new THREE.Vector3();
+    var quaternion = new THREE.Quaternion();
+    var scale = new THREE.Vector3();
+
+    camera.matrixAutoUpdate = true;
+    p1.matrixWorld.decompose(position, quaternion, scale);
+
+    camera.lookAt(position);
+    camera.up.set(0, 0, 1);
+
+    // var relativeOffset = new THREE.Vector3(-45, 0, 20);
+    // // const offset = ne  w THREE.Vector3(-45, 0, 20);
+    // // offset.add(p1.position);
+    // var offSet = relativeOffset.applyMatrix4(p1.matrixWorld);
+    // camera.position.copy(offSet);
+    //
+    // // const offSetLookAt = new THREE.Vector3(60, 0, 10);
+    // // offSetLookAt.add(p1.position);
+    // camera.lookAt(p1.position);
+    // camera.up();
+
+
+    //
+    // console.log('p1 position : ', p1.position);
+    // console.log('camera position : ', camera.position);
+    // console.log('camera lookAt : ', offSetLookAt);
 
     // if (isInspecao) {
     //   // p1.position.copy(posicaoCarro)
@@ -346,7 +321,6 @@ function main() {
 
   function render() {
     stats.update(); // Update FPS
-    acelera();
     trackCar();
     trackballControls.update();
     keyboardUpdate();
