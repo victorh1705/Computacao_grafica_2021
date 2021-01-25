@@ -183,33 +183,36 @@ function main() {
 
   function keyboardUpdate() {
 
-    var angle = degreesToRadians(10);
+    var angle = degreesToRadians(5);
     var rotAxis = new THREE.Vector3(0, 0, 1); // Set Z axis
 
     keyboard.update();
 
     if (keyboard.down('space')) changeProjection();
 
-    if (keyboard.pressed('D')) p1.rotateZ(-angle);
-    if (keyboard.pressed('A')) p1.rotateZ(angle);
-
-    if (!isInspecao) return
+    if (isInspecao) {
+      if (keyboard.pressed('D')) p1.rotateZ(-angle);
+      if (keyboard.pressed('A')) p1.rotateZ(angle);
+    }
 
     if (keyboard.pressed('right')) {
-      p1.rotateZ(-angle);
       if (cont > -10) {
         cont--
-        c4.rotateZ(-angle / 8);
+        c4.rotateZ(-angle / 4);
       }
     }
 
     if (keyboard.pressed('left')) {
-      p1.rotateZ(angle);
       if (cont < 10) {
         cont++
-        c4.rotateZ(angle / 8);
+        c4.rotateZ(angle / 4);
       }
     }
+
+    if (isInspecao) return;
+
+    if (keyboard.pressed('right')) p1.rotateZ(-angle);
+    if (keyboard.pressed('left')) p1.rotateZ(angle);
 
     if (keyboard.pressed('up')) p1.translateX(1);
     if (keyboard.pressed('down')) p1.translateX(-1);
@@ -230,6 +233,8 @@ function main() {
   function changeProjection() {
     // posicao anterior
     let pos = new THREE.Vector3().copy(camera.position);
+
+    isInspecao = !isInspecao;
 
     axesHelper.visible = false;
 
@@ -258,7 +263,6 @@ function main() {
       plane.visible = true;
     }
 
-    isInspecao = !isInspecao;
 
     let up = new THREE.Vector3(0, 0, 1);
     camera.up.copy(up);
@@ -269,7 +273,7 @@ function main() {
 
   function trackCar() {
 
-    if (!isInspecao) return
+    if (isInspecao) return
 
     var position = new THREE.Vector3();
     var quaternion = new THREE.Quaternion();
