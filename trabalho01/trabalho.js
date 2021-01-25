@@ -6,7 +6,7 @@ function main() {
   var position = new THREE.Vector3(-45, 0, 20);
   var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.copy(position);
-  camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
+  // camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
   camera.up.set(0, 0, 1); // That's the default value
 
   // Use to scale the cube
@@ -47,6 +47,9 @@ function main() {
   var planeMaterial = new THREE.MeshBasicMaterial({
     color: 'rgb(150, 150, 150)',
     side: THREE.DoubleSide,
+    polygonOffset: true,
+    polygonOffsetFactor: 1, // positive value pushes polygon further away
+    polygonOffsetUnits: 1
   });
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
   // add the plane to the scene
@@ -130,7 +133,6 @@ function main() {
   // Criação do Eixo da tras
   var c1 = createCylinder(0.3, 6, 0x708090);
   p1.add(c1);
-  p1.add(camera)
   c1.position.set(-2, 0, 0);
 
   var c2 = createCylinder(1, 1, 0x1C1C1C);
@@ -282,52 +284,18 @@ function main() {
     camera.matrixAutoUpdate = true;
     p1.matrixWorld.decompose(position, quaternion, scale);
 
-    camera.lookAt(position);
     camera.up.set(0, 0, 1);
+    camera.lookAt(position);
 
-    // var relativeOffset = new THREE.Vector3(-45, 0, 20);
-    // // const offset = ne  w THREE.Vector3(-45, 0, 20);
-    // // offset.add(p1.position);
-    // var offSet = relativeOffset.applyMatrix4(p1.matrixWorld);
-    // camera.position.copy(offSet);
-    //
-    // // const offSetLookAt = new THREE.Vector3(60, 0, 10);
-    // // offSetLookAt.add(p1.position);
-    // camera.lookAt(p1.position);
-    // camera.up();
-
-
-    //
-    // console.log('p1 position : ', p1.position);
-    // console.log('camera position : ', camera.position);
-    // console.log('camera lookAt : ', offSetLookAt);
-
-    // if (isInspecao) {
-    //   // p1.position.copy(posicaoCarro)
-    //
-    //   const offset = new THREE.Vector3(-45, 0, 20);
-    //   offset.add(p1.position);
-    //
-    //   const offSetLookAt = new THREE.Vector3(60, 0, 10);
-    //   offSetLookAt.add(p1.position);
-    //
-    //   camera.position.copy(offset);
-    //   // camera.lookAt(offSetLookAt);
-    //
-    //   // camera.up.copy(new THREE.Vector3(0, 0, 1));
-    //
-    //   trackballControls = initTrackballControls(camera, renderer);
-    //   lightFollowingCamera(light, camera)
-    // }
-
+    p1.add(camera);
   }
 
 
   function render() {
     stats.update(); // Update FPS
-    trackCar();
     trackballControls.update();
     keyboardUpdate();
+    trackCar();
     lightFollowingCamera(light, camera) // Makes light follow the camera
     requestAnimationFrame(render); // Show events
     renderer.render(scene, camera) // Render scene
