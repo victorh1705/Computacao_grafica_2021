@@ -71,5 +71,10 @@ var list = {
         'Exercícios 02': 'html/aula05_exercicio02',
       },
     },
+    'Aula 07 - Iluminação': {
+      'Exercícios': {
+        'Exercícios 01': 'html/aula07_exercicio01',
+      },
+    },
   },
 };
