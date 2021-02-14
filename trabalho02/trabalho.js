@@ -19,21 +19,16 @@ function main() {
 
   // Construção da luz direcional
   function setDirectionalLighting(x, y, z) {
-    var dirLight = new THREE.DirectionalLight(0x409cff);
-    dirLight.position.set(x, y, z);
-    dirLight.intensity = 2;
+    var directionalLight = new THREE.DirectionalLight(0x409cff);
+    directionalLight.position.set(x, y, z);
+    directionalLight.intensity = 2;
 
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
+    directionalLight.castShadow = true;
 
-    dirLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
 
-    dirLight.shadow.camera.left = -1000;
-    dirLight.shadow.camera.right = 1000;
-    dirLight.shadow.camera.top = 1000;
-    dirLight.shadow.camera.bottom = -1000;
-
-    return dirLight
+    return directionalLight
   }
 
   // SpotLight
@@ -44,7 +39,7 @@ function main() {
     spotLight.decay = 2;
     spotLight.penumbra = 0.5;
 
-    spotLight.castShadow = true;
+    // spotLight.castShadow = true;
 
     spotLight.shadow.mapSize.width = 2048;
     spotLight.shadow.mapSize.height = 2048;
@@ -56,8 +51,10 @@ function main() {
 
   sun = setDirectionalLighting(-100, -200, 400);
   scene.add(sun);
+  // scene.add(new THREE.CameraHelper(sun.shadow.camera))
+  scene.add(new THREE.DirectionalLightHelper(sun))
 
-  spotlight = setSpotLight(-20, -0, 20);
+  spotlight = setSpotLight(-40, -0, 40);
   camera.add(spotlight);
 
 
@@ -85,6 +82,8 @@ function main() {
     polygonOffsetUnits: 1,
   });
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  plane.receiveShadow = true;
+
   // add the plane to the scene
   scene.add(plane);
 
@@ -98,20 +97,24 @@ function main() {
   //scene.add(cube);
 
   // === Início da Criação do Carro ==
-  var DIRECTION = {
+  var {FRONT, REVERSE} = {
     FRONT: 'front',
     REVERSE: 'reverse',
   }
 
 
   var car = {
-    speed: 0,
-    acceleration: 0,
-    accelerationRate: 0.01,
-    maxAcc: 5,
+    speed: 0.,
+
+    acceleration: 0.,
+    accelerationRate: 0.1,
+
+    maxAcc: 1.,
+    maxReverse: 0.7,
     friction: 0.1,
     frictionOnTurn: 3 * this.friction,
-    direction: DIRECTION.FRONT,
+
+    direction: FRONT,
 
     angle: 1.5,
     maxAngle: 10,
@@ -121,19 +124,21 @@ function main() {
         this.acceleration += this.accelerationRate
         this.speed = this.speed + this.acceleration - this.friction
       }
-      this.direction = DIRECTION.FRONT
+      this.direction = FRONT
 
       return this.speed
     },
+
     reverse: function () {
-      if (this.acceleration > -this.maxAcc) {
+      if (this.acceleration > -this.maxReverse) {
         this.acceleration -= this.accelerationRate
         this.speed = this.speed + this.acceleration - (-1 * this.friction)
       }
-      this.direction = DIRECTION.REVERSE
+      this.direction = REVERSE
 
       return this.speed
     },
+
     getSpeed: function (turning = false) {
       if (this.acceleration > 0) {
         this.acceleration = this.accelerationRate
@@ -144,9 +149,8 @@ function main() {
 
       let friction = turning ? this.frictionOnTurn : this.friction;
 
-
       if (this.speed !== 0) {
-        if (this.direction === DIRECTION.FRONT) {
+        if (this.direction === FRONT) {
           this.speed = this.speed < this.friction
             ? 0
             : this.speed - friction;
@@ -157,9 +161,6 @@ function main() {
         }
       }
 
-
-      // if (this.speed != 0) this.speed = this.speed - this.friction;
-      console.log('speed : ', this.speed)
       return this.speed;
     },
 
@@ -218,11 +219,11 @@ function main() {
 
   //bancos
   //assento
-  var p12 = createCube(2, 2, 1, 0x000000);
+  var p12 = createCube(2, 2, 1, 0xa0a0a0);
   p1.add(p12);
   p12.position.set(0, 0, 1);
   // encosto
-  var p13 = createCube(0.4, 2, 3, 0x000000);
+  var p13 = createCube(0.4, 2, 3, 0xa0a0a0);
   p1.add(p13);
   p13.position.set(-1, 0, 2);
 
@@ -267,20 +268,39 @@ function main() {
   render();
 
 
-  function createCylinder(d, l, colorc) {
+  function createCylinder(d, l, color) {
     // diamentro,diametro,largura
-    const geometry = new THREE.CylinderGeometry(d, d, l, 32);
-    const material = new THREE.MeshPhongMaterial({ambient: 0x050505, color: colorc, specular: 0x555555, shininess: 30});
-    const cylinder = new THREE.Mesh(geometry, material);
+    let cylinder = new THREE.Mesh(
+      new THREE.CylinderGeometry(d, d, l, 32),
+      new THREE.MeshPhongMaterial({
+        ambient: 0x050505,
+        color: color,
+        specular: 0x555555,
+        shininess: 30,
+      }),
+    );
+
+    cylinder.castShadow = true;
+    cylinder.receiveShadow = true;
+
     return cylinder;
   }
 
-  function createCube(x, y, z, colorobj) {
+  function createCube(x, y, z, color) {
     // largura, profundidade e altura
-    const geometry = new THREE.BoxGeometry(x, y, z);
-    const material = new THREE.MeshPhongMaterial(
-      {ambient: 0x050505, color: colorobj, specular: 0x555555, shininess: 30});
-    const cube = new THREE.Mesh(geometry, material);
+    let cube = new THREE.Mesh(
+      new THREE.BoxGeometry(x, y, z),
+      new THREE.MeshPhongMaterial({
+        ambient: 0x050505,
+        color: color,
+        specular: 0x555555,
+        shininess: 30,
+      }),
+    );
+
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+
     return cube;
   }
 
@@ -314,8 +334,16 @@ function main() {
     }
 
     if (car.speed !== 0) {
-      if (keyboard.pressed('right')) p1.rotateZ(-angle);
-      if (keyboard.pressed('left')) p1.rotateZ(angle);
+      if (keyboard.pressed('right')) {
+        car.direction === FRONT
+          ? p1.rotateZ(-angle)
+          : p1.rotateZ(angle);
+      }
+      if (keyboard.pressed('left')) {
+        car.direction === FRONT
+          ? p1.rotateZ(angle)
+          : p1.rotateZ(-angle);
+      }
     }
 
     if (keyboard.pressed('up')) {
@@ -377,7 +405,6 @@ function main() {
     camera.up.copy(up);
 
     trackballControls = initTrackballControls(camera, renderer);
-    lightFollowingCamera(spotlight, camera)
   }
 
   function trackCar() {
@@ -395,6 +422,7 @@ function main() {
     camera.lookAt(position);
 
     p1.add(camera);
+    lightFollowingCamera(spotlight, camera)
   }
 
 
@@ -438,7 +466,6 @@ function main() {
     trackballControls.update();
     keyboardUpdate();
     trackCar();
-    lightFollowingCamera(spotlight, camera) // Makes light follow the camera
     requestAnimationFrame(render); // Show events
     renderer.render(scene, camera) // Render scene
   }
