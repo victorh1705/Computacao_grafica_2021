@@ -9,14 +9,6 @@ function main() {
   // camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
   camera.up.set(0, 0, 1); // That's the default value
 
-  // Use to scale the cube
-  var scale = 1.0;
-  var sc = 0; // velocidade do carro
-  var anglecarro = 0;
-  var ac = 1; // aceleração do carro
-  var desloc = 0;
-  // var d = Clock.getDelta();
-  var d = 0.3;
 
   var cont = 0
 
@@ -49,7 +41,7 @@ function main() {
     side: THREE.DoubleSide,
     polygonOffset: true,
     polygonOffsetFactor: 1, // positive value pushes polygon further away
-    polygonOffsetUnits: 1
+    polygonOffsetUnits: 1,
   });
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
   // add the plane to the scene
@@ -65,6 +57,72 @@ function main() {
   //scene.add(cube);
 
   // === Início da Criação do Carro ==
+  var DIRECTION = {
+    FRONT: 'front',
+    REVERSE: 'reverse',
+  }
+
+
+  var car = {
+    speed: 0,
+    acceleration: 0,
+    accelerationRate: 0.01,
+    maxAcc: 5,
+    friction: 0.1,
+    frictionOnTurn: 3 * this.friction,
+    direction: DIRECTION.FRONT,
+
+    angle: 1.5,
+    maxAngle: 10,
+
+    accelerate: function () {
+      if (this.acceleration < this.maxAcc) {
+        this.acceleration += this.accelerationRate
+        this.speed = this.speed + this.acceleration - this.friction
+      }
+      this.direction = DIRECTION.FRONT
+
+      return this.speed
+    },
+    reverse: function () {
+      if (this.acceleration > -this.maxAcc) {
+        this.acceleration -= this.accelerationRate
+        this.speed = this.speed + this.acceleration - (-1 * this.friction)
+      }
+      this.direction = DIRECTION.REVERSE
+
+      return this.speed
+    },
+    getSpeed: function (turning = false) {
+      if (this.acceleration > 0) {
+        this.acceleration = this.accelerationRate
+      }
+      if (this.acceleration < 0) {
+        this.acceleration += this.accelerationRate
+      }
+
+      let friction = turning ? this.frictionOnTurn : this.friction;
+
+
+      if (this.speed !== 0) {
+        if (this.direction === DIRECTION.FRONT) {
+          this.speed = this.speed < this.friction
+            ? 0
+            : this.speed - friction;
+        } else {
+          this.speed = this.speed > this.friction
+            ? 0
+            : this.speed + friction;
+        }
+      }
+
+
+      // if (this.speed != 0) this.speed = this.speed - this.friction;
+      console.log('speed : ', this.speed)
+      return this.speed;
+    },
+
+  }
 
 
   // Eixo central do carro
@@ -185,17 +243,11 @@ function main() {
 
   function keyboardUpdate() {
 
-    var angle = degreesToRadians(5);
-    var rotAxis = new THREE.Vector3(0, 0, 1); // Set Z axis
+    var angle = degreesToRadians(car.angle);
 
     keyboard.update();
 
     if (keyboard.down('space')) changeProjection();
-
-    if (isInspecao) {
-      if (keyboard.pressed('D')) p1.rotateZ(-angle);
-      if (keyboard.pressed('A')) p1.rotateZ(angle);
-    }
 
     if (keyboard.pressed('right')) {
       if (cont > -10) {
@@ -211,13 +263,25 @@ function main() {
       }
     }
 
-    if (isInspecao) return;
+    if (isInspecao) {
+      if (keyboard.pressed('D')) p1.rotateZ(-angle);
+      if (keyboard.pressed('A')) p1.rotateZ(angle);
 
-    if (keyboard.pressed('right')) p1.rotateZ(-angle);
-    if (keyboard.pressed('left')) p1.rotateZ(angle);
+      return
+    }
 
-    if (keyboard.pressed('up')) p1.translateX(1);
-    if (keyboard.pressed('down')) p1.translateX(-1);
+    if (car.speed !== 0) {
+      if (keyboard.pressed('right')) p1.rotateZ(-angle);
+      if (keyboard.pressed('left')) p1.rotateZ(angle);
+    }
+
+    if (keyboard.pressed('up')) {
+      p1.translateX(car.accelerate());
+    } else if (keyboard.pressed('down')) {
+      p1.translateX(car.reverse());
+    } else {
+      p1.translateX(car.getSpeed())
+    }
   }
 
   function showInformation() {
@@ -228,7 +292,6 @@ function main() {
     controls.add('Use keyboard arrows to move the cube.');
     controls.add('Press Page Up or Page down to move the cube over the Z axis');
     controls.add('Press \'A\' and \'D\' to rotate.');
-    controls.add(anglecarro);
     controls.show();
   }
 
@@ -263,6 +326,7 @@ function main() {
       camera.lookAt(offSetLookAt);
 
       plane.visible = true;
+      axesHelper.visible = true;
     }
 
 
