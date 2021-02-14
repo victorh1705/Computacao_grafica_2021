@@ -15,10 +15,25 @@ function main() {
   var isInspecao = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
 
-  // Configurando a luz
-  let light = new THREE.DirectionalLight(0xffffff);
-  light.position.set(0, 1, 1).normalize();
-  scene.add(light);
+  // === Luz ==
+
+  // SpotLight
+  function setSpotLight(x, y, z) {
+    var spotLight = new THREE.SpotLight(0xfffff);
+    spotLight.position.set(x, y, z);
+    spotLight.intensity = 2.
+    spotLight.shadow.mapSize.width = 2048;
+    spotLight.shadow.mapSize.height = 2048;
+    spotLight.shadow.camera.fov = degreesToRadians(40);
+    spotLight.castShadow = true;
+    spotLight.decay = 2;
+    spotLight.penumbra = 0.5;
+    return spotLight;
+  }
+
+  spotlight = setSpotLight(-20, -0, 20);
+  camera.add(spotlight);
+
 
   // Show text information onscreen
   showInformation();
@@ -222,7 +237,9 @@ function main() {
     onWindowResize(camera, renderer)
   }, false);
 
+  buildInterface();
   render();
+
 
   function createCylinder(d, l, colorc) {
     // diamentro,diametro,largura
@@ -334,7 +351,7 @@ function main() {
     camera.up.copy(up);
 
     trackballControls = initTrackballControls(camera, renderer);
-    lightFollowingCamera(light, camera)
+    lightFollowingCamera(spotlight, camera)
   }
 
   function trackCar() {
@@ -355,12 +372,36 @@ function main() {
   }
 
 
+  // Construindo o menu
+  function buildInterface() {
+    //------------------------------------------------------------
+    // Interface
+    var controls = new function () {
+      this.isSpotLightEnable = true;
+
+      this.onEnableSpotLight = function () {
+        spotlight.visible = this.isSpotLightEnable;
+      };
+
+
+    };
+
+    var gui = new dat.GUI();
+
+    gui.add(controls, 'isSpotLightEnable', true)
+      .name('Spot de Luz')
+      .onChange(function (e) {
+        controls.onEnableSpotLight()
+      });
+  }
+
+
   function render() {
     stats.update(); // Update FPS
     trackballControls.update();
     keyboardUpdate();
     trackCar();
-    lightFollowingCamera(light, camera) // Makes light follow the camera
+    lightFollowingCamera(spotlight, camera) // Makes light follow the camera
     requestAnimationFrame(render); // Show events
     renderer.render(scene, camera) // Render scene
   }
