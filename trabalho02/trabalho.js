@@ -15,21 +15,47 @@ function main() {
   var isInspecao = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
 
-  // === Luz ==
+  // === Luz ===
+
+  // Construção da luz direcional
+  function setDirectionalLighting(x, y, z) {
+    var dirLight = new THREE.DirectionalLight(0x409cff);
+    dirLight.position.set(x, y, z);
+    dirLight.intensity = 2;
+
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+
+    dirLight.castShadow = true;
+
+    dirLight.shadow.camera.left = -1000;
+    dirLight.shadow.camera.right = 1000;
+    dirLight.shadow.camera.top = 1000;
+    dirLight.shadow.camera.bottom = -1000;
+
+    return dirLight
+  }
 
   // SpotLight
   function setSpotLight(x, y, z) {
     var spotLight = new THREE.SpotLight(0xfffff);
     spotLight.position.set(x, y, z);
     spotLight.intensity = 2.
+    spotLight.decay = 2;
+    spotLight.penumbra = 0.5;
+
+    spotLight.castShadow = true;
+
     spotLight.shadow.mapSize.width = 2048;
     spotLight.shadow.mapSize.height = 2048;
     spotLight.shadow.camera.fov = degreesToRadians(40);
-    spotLight.castShadow = true;
-    spotLight.decay = 2;
-    spotLight.penumbra = 0.5;
+
     return spotLight;
   }
+
+
+  sun = setDirectionalLighting(-100, -200, 400);
+  scene.add(sun);
 
   spotlight = setSpotLight(-20, -0, 20);
   camera.add(spotlight);
@@ -378,15 +404,26 @@ function main() {
     // Interface
     var controls = new function () {
       this.isSpotLightEnable = true;
+      this.isDirectionalLightEnable = true;
 
       this.onEnableSpotLight = function () {
         spotlight.visible = this.isSpotLightEnable;
+      };
+
+      this.onEnableDirectionalLight = function () {
+        sun.visible = this.isDirectionalLightEnable;
       };
 
 
     };
 
     var gui = new dat.GUI();
+
+    gui.add(controls, 'isDirectionalLightEnable', true)
+      .name('Luz do Sol (Directional)')
+      .onChange(function (e) {
+        controls.onEnableDirectionalLight()
+      });
 
     gui.add(controls, 'isSpotLightEnable', true)
       .name('Spot de Luz')
