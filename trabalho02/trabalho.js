@@ -355,9 +355,9 @@ function main() {
   }
 
   function criarMontanhaMaior(x = 220, y = 60) {
-    criamontanha(x, y , 20, 85, 'white');
-    criamontanha(x - 10, y , 35, 65);
-    criamontanha(x + 10, y, 30, 60 );
+    criamontanha(x, y, 20, 85, 'white');
+    criamontanha(x - 10, y, 40, 65);
+    criamontanha(x + 10, y, 50, 60);
   }
 
   function criarMontanhaMenor(x = 550, y = 145) {
@@ -365,8 +365,37 @@ function main() {
     criamontanha(x + 5, y + 5, 10, 20, 'rgb(100,70,20)');
   }
 
+  // === objeto exportado
+  // Função para carregar a estátua
+  // É preciso rodar o HTML com o Live Server (Plugin do VSC) para o objeto aparecer
+  function criarEstatua(x, y) {
+    var loader = new THREE.GLTFLoader();
+    loader.load('./assets/objects/mario/scene.gltf', function (gltf) {
+      var obj = gltf.scene;
+
+      obj.castShadow = true;
+      obj.rotateX(degreesToRadians(90));
+
+      var newScale = 20;
+      var scale = getMaxSize(obj); // Available in 'utils.js'
+
+      obj.scale.set(
+        newScale * (1.0 / scale),
+        newScale * (1.0 / scale),
+        newScale * (1.0 / scale),
+      );
+
+      obj.position.x = x;
+      obj.position.y = y;
+
+      scene.add(obj)
+    })
+  }
+
   criarMontanhaMaior(220, 120);
   criarMontanhaMenor(850, 145);
+
+  criarEstatua(-220, 120);
 
   // === Teclado ===
 
