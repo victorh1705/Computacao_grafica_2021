@@ -102,7 +102,7 @@ function main() {
     REVERSE: 'reverse',
   }
 
-
+  // objecto com constante de movimento do carro
   var car = {
     speed: 0.,
 
@@ -372,6 +372,7 @@ function main() {
   criarMontanhaMaior(220, 120);
   criarMontanhaMenor(850, 145);
 
+  // === Teclado ===
 
   function keyboardUpdate() {
 
