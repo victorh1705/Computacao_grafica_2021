@@ -3,7 +3,7 @@ function main() {
   var scene = new THREE.Scene();    // Create main scene
   var renderer = initRenderer();    // View function in util/utils
 
-  var position = new THREE.Vector3(-45, 0, 20);
+  var position = new THREE.Vector3(-150, 0, 50);
   var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
   camera.position.copy(position);
   // camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
@@ -19,7 +19,7 @@ function main() {
 
   // Construção da luz direcional
   function setDirectionalLighting(x, y, z) {
-    var directionalLight = new THREE.DirectionalLight(0x409cff);
+    var directionalLight = new THREE.DirectionalLight('rgb(64,156,255)');
     directionalLight.position.set(x, y, z);
     directionalLight.intensity = 2;
 
@@ -33,7 +33,7 @@ function main() {
 
   // SpotLight
   function setSpotLight(x, y, z) {
-    var spotLight = new THREE.SpotLight(0xfffff);
+    var spotLight = new THREE.SpotLight('rgb(255,255,255)');
     spotLight.position.set(x, y, z);
     spotLight.intensity = 2.
     spotLight.decay = 2;
@@ -47,7 +47,6 @@ function main() {
 
     return spotLight;
   }
-
 
   sun = setDirectionalLighting(-100, -200, 400);
   scene.add(sun);
@@ -335,15 +334,12 @@ function main() {
   }
 
   // Construindo a montanha
-  function criamontanha(x, y, b, h) {
-
-    var objColor = 'rgb(100, 70, 20)';
-    var objOpacity = 1;
+  function criamontanha(x, y, b, h, color = 'rgb(100,70,20)') {
 
     // Object Material
     var objectMaterial = new THREE.MeshPhongMaterial({
-      color: objColor,
-      opacity: objOpacity,
+      color: color,
+      opacity: 1,
       transparent: true,
     });
 
@@ -359,14 +355,14 @@ function main() {
   }
 
   function criarMontanhaMaior(x = 220, y = 60) {
-    criamontanha(x, y + 5, 25, 70);
-    criamontanha(x - 10, y - 5, 15, 40);
-    criamontanha(x + 10, y, 30, 45);
+    criamontanha(x, y , 20, 85, 'white');
+    criamontanha(x - 10, y , 35, 65);
+    criamontanha(x + 10, y, 30, 60 );
   }
 
   function criarMontanhaMenor(x = 550, y = 145) {
-    criamontanha(x, y, 15, 30);
-    criamontanha(x + 5, y + 5, 10, 20);
+    criamontanha(x, y, 15, 30, 'rgb(100,70,20)');
+    criamontanha(x + 5, y + 5, 10, 20, 'rgb(100,70,20)');
   }
 
   criarMontanhaMaior(220, 120);
