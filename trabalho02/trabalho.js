@@ -4,7 +4,7 @@ function main() {
   var renderer = initRenderer();    // View function in util/utils
 
   var position = new THREE.Vector3(-45, 0, 20);
-  var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
   camera.position.copy(position);
   // camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
   camera.up.set(0, 0, 1); // That's the default value
@@ -52,7 +52,7 @@ function main() {
   sun = setDirectionalLighting(-100, -200, 400);
   scene.add(sun);
   // scene.add(new THREE.CameraHelper(sun.shadow.camera))
-  scene.add(new THREE.DirectionalLightHelper(sun))
+  // scene.add(new THREE.DirectionalLightHelper(sun))
 
   spotlight = setSpotLight(-40, -0, 40);
   camera.add(spotlight);
@@ -72,7 +72,7 @@ function main() {
   scene.add(axesHelper);
 
   // create the ground plane
-  var planeGeometry = new THREE.PlaneGeometry(2000, 2000);
+  var planeGeometry = new THREE.PlaneGeometry(8000, 8000);
   planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
   var planeMaterial = new THREE.MeshBasicMaterial({
     color: 'rgb(150, 150, 150)',
@@ -107,16 +107,16 @@ function main() {
     speed: 0.,
 
     acceleration: 0.,
-    accelerationRate: 0.1,
+    accelerationRate: 0.05,
 
-    maxAcc: 1.,
-    maxReverse: 0.7,
-    friction: 0.1,
+    maxAcc: .5,
+    maxReverse: 0.35,
+    friction: 0.05,
     frictionOnTurn: 3 * this.friction,
 
     direction: FRONT,
 
-    angle: 1.5,
+    angle: 2.5,
     maxAngle: 10,
 
     accelerate: function () {
@@ -303,6 +303,75 @@ function main() {
 
     return cube;
   }
+
+  // === Montanha ===
+
+  // Gerando pontos para a construção da montanha
+  function generatePoints(numberOfPoints, b, h) {
+    var points = [];
+    var maxSize = 10;
+    // Pontos da Base
+    for (var i = 0; i < numberOfPoints / 2; i++) {
+      var randomX = b * Math.sin(Math.floor(Math.random() * 360));
+      var randomY = b * Math.cos(Math.floor(Math.random() * 360));
+
+      var randomZ = 0;
+      points.push(new THREE.Vector3(randomX, randomY, randomZ));
+    }
+
+    // Pontos do Corpo
+    for (var i = 0; i < numberOfPoints / 2; i++) {
+      var randomX = 0.6 * b * Math.sin(Math.floor(Math.random() * 360));
+      var randomY = 0.6 * b * Math.cos(Math.floor(Math.random() * 360));
+
+      var randomZ = h * Math.sin(Math.floor(Math.random() * 180));
+      // Inverte números negativos
+      if (randomZ < 0) {
+        randomZ = randomZ * (-1);
+      }
+      points.push(new THREE.Vector3(randomX, randomY, randomZ));
+    }
+    return points;
+  }
+
+  // Construindo a montanha
+  function criamontanha(x, y, b, h) {
+
+    var objColor = 'rgb(100, 70, 20)';
+    var objOpacity = 1;
+
+    // Object Material
+    var objectMaterial = new THREE.MeshPhongMaterial({
+      color: objColor,
+      opacity: objOpacity,
+      transparent: true,
+    });
+
+    var localPoints = generatePoints(20, b, h);
+
+    convexGeometry = new THREE.ConvexBufferGeometry(localPoints);
+    object = new THREE.Mesh(convexGeometry, objectMaterial);
+    object.castShadow = true;
+    object.visible = true;
+    object.position.x = x;
+    object.position.y = y;
+    scene.add(object);
+  }
+
+  function criarMontanhaMaior(x = 220, y = 60) {
+    criamontanha(x, y + 5, 25, 70);
+    criamontanha(x - 10, y - 5, 15, 40);
+    criamontanha(x + 10, y, 30, 45);
+  }
+
+  function criarMontanhaMenor(x = 550, y = 145) {
+    criamontanha(x, y, 15, 30);
+    criamontanha(x + 5, y + 5, 10, 20);
+  }
+
+  criarMontanhaMaior(220, 120);
+  criarMontanhaMenor(850, 145);
+
 
   function keyboardUpdate() {
 
