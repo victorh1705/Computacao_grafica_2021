@@ -17,6 +17,18 @@ function main() {
 
   // === Luz ===
 
+  // Construindo os postes
+  function setPointLight(x, y) {
+    const pointLight = new THREE.PointLight('rgb(255,255,255)', 2, 300);
+
+    pointLight.position.set(x, y, 10);
+
+    // Criando o poste
+    scene.add(createStake(0.4, 1.4, 10, 20, 4, false, x, y));
+
+    return pointLight;
+  }
+
   // Construção da luz direcional
   function setDirectionalLighting(x, y, z) {
     var directionalLight = new THREE.DirectionalLight('rgb(64,156,255)');
@@ -48,12 +60,12 @@ function main() {
     return spotLight;
   }
 
-  sun = setDirectionalLighting(-100, -200, 400);
+  let sun = setDirectionalLighting(-100, -200, 400);
   scene.add(sun);
   // scene.add(new THREE.CameraHelper(sun.shadow.camera))
   // scene.add(new THREE.DirectionalLightHelper(sun))
 
-  spotlight = setSpotLight(-40, -0, 40);
+  let spotlight = setSpotLight(-40, -0, 40);
   camera.add(spotlight);
 
 
@@ -285,6 +297,23 @@ function main() {
     return cylinder;
   }
 
+  // Cilindro usado para a criação do poste
+  function createStake(radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, x, y) {
+    let object = new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        radiusTop, radiusBottom, height,
+        radialSegments, heightSegments, openEnded,
+      ),
+      new THREE.MeshPhongMaterial({color: 'rgb(124, 187, 250)'}),
+    );
+
+    object.castShadow = true;
+    object.position.set(x, y, 5);
+    object.rotateX(degreesToRadians(90));
+
+    return object;
+  }
+
   function createCube(x, y, z, color) {
     // largura, profundidade e altura
     let cube = new THREE.Mesh(
@@ -396,6 +425,19 @@ function main() {
   criarMontanhaMenor(850, 145);
 
   criarEstatua(-220, 120);
+
+  let postes = []
+
+  postes.push(setPointLight(360, -120))
+  postes.push(setPointLight(280, -120))
+  postes.push(setPointLight(480, -120))
+  postes.push(setPointLight(520, -120))
+  postes.push(setPointLight(-40, 120))
+  postes.push(setPointLight(-40, -120))
+  postes.push(setPointLight(-80, 120))
+  postes.push(setPointLight(-80, -120))
+
+  postes.forEach(item => scene.add(item));
 
   // === Teclado ===
 
@@ -528,6 +570,7 @@ function main() {
     var controls = new function () {
       this.isSpotLightEnable = true;
       this.isDirectionalLightEnable = true;
+      this.isPointLightEnable = true;
 
       this.onEnableSpotLight = function () {
         spotlight.visible = this.isSpotLightEnable;
@@ -535,6 +578,10 @@ function main() {
 
       this.onEnableDirectionalLight = function () {
         sun.visible = this.isDirectionalLightEnable;
+      };
+
+      this.onEnablePointLight = function () {
+        postes.forEach(item => item.visible = this.isPointLightEnable);
       };
 
 
@@ -552,6 +599,12 @@ function main() {
       .name('Spot de Luz')
       .onChange(function (e) {
         controls.onEnableSpotLight()
+      });
+
+    gui.add(controls, 'isPointLightEnable', true)
+      .name('Luz dos postes (Point Light)')
+      .onChange(function (e) {
+        controls.onEnablePointLight()
       });
   }
 
