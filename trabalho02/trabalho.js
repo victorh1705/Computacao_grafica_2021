@@ -394,9 +394,7 @@ function main() {
     criamontanha(x + 5, y + 5, 10, 20, 'rgb(100,70,20)');
   }
 
-  // === objeto exportado
-  // Função para carregar a estátua
-  // É preciso rodar o HTML com o Live Server (Plugin do VSC) para o objeto aparecer
+  // === objeto exportado ===
   function criarEstatua(x, y) {
     var loader = new THREE.GLTFLoader();
     loader.load('./assets/objects/mario/scene.gltf', function (gltf) {
@@ -405,7 +403,7 @@ function main() {
       obj.castShadow = true;
       obj.rotateX(degreesToRadians(90));
 
-      var newScale = 20;
+      var newScale = 60;
       var scale = getMaxSize(obj); // Available in 'utils.js'
 
       obj.scale.set(
