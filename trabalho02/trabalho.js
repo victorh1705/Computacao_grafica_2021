@@ -14,6 +14,7 @@ function main() {
 
   var isInspecao = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
+  var objs = []
 
   // === Luz ===
 
@@ -27,9 +28,11 @@ function main() {
     var lightSphere = createLightSphere(scene, 0.4, 10, 10, lightPosition);
     // Criando o poste
     var poste = createStake(0.4, 1.4, 10, 20, 4, false, x, y);
-    scene.add(poste);
 
-    return pointLight;
+    objs.push(lightSphere);
+    objs.push(poste);
+
+    return {pointLight, poste, lightSphere};
   }
 
   // Construção da luz direcional
@@ -378,7 +381,9 @@ function main() {
     object.visible = true;
     object.position.x = x;
     object.position.y = y;
+
     scene.add(object);
+    objs.push(object);
   }
 
   function criarMontanhaMaior(x = 220, y = 60) {
@@ -413,7 +418,8 @@ function main() {
       obj.position.x = x;
       obj.position.y = y;
 
-      scene.add(obj)
+      scene.add(obj);
+      objs.push(obj);
     })
   }
 
@@ -433,7 +439,10 @@ function main() {
   postes.push(setPointLight(-80, 120))
   postes.push(setPointLight(-80, -120))
 
-  postes.forEach(item => scene.add(item));
+  postes.forEach(item => {
+    scene.add(item.pointLight)
+    scene.add(item.poste)
+  });
 
   // === Teclado ===
 
@@ -521,6 +530,8 @@ function main() {
       plane.visible = false;
       axesHelper.visible = false;
 
+      objs.forEach(item => item.visible = false)
+
     } else {
       p1.position.copy(posicaoCarro)
 
@@ -535,6 +546,8 @@ function main() {
 
       plane.visible = true;
       axesHelper.visible = true;
+
+      objs.forEach(item => item.visible = true)
     }
 
 
@@ -581,7 +594,7 @@ function main() {
       };
 
       this.onEnablePointLight = function () {
-        postes.forEach(item => item.visible = this.isPointLightEnable);
+        postes.forEach(item => item.pointLight.visible = this.isPointLightEnable);
       };
 
 
