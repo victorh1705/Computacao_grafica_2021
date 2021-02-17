@@ -19,12 +19,15 @@ function main() {
 
   // Construindo os postes
   function setPointLight(x, y) {
-    const pointLight = new THREE.PointLight('rgb(255,255,255)', 2, 300);
+    const pointLight = new THREE.PointLight('rgb(255,255,255)', 0.5, 300, 2);
 
     pointLight.position.set(x, y, 10);
 
+    var lightPosition = new THREE.Vector3(x, y, 10.3);
+    var lightSphere = createLightSphere(scene, 0.4, 10, 10, lightPosition);
     // Criando o poste
-    scene.add(createStake(0.4, 1.4, 10, 20, 4, false, x, y));
+    var poste = createStake(0.4, 1.4, 10, 20, 4, false, x, y);
+    scene.add(poste);
 
     return pointLight;
   }
@@ -33,7 +36,7 @@ function main() {
   function setDirectionalLighting(x, y, z) {
     var directionalLight = new THREE.DirectionalLight('rgb(64,156,255)');
     directionalLight.position.set(x, y, z);
-    directionalLight.intensity = 2;
+    directionalLight.intensity = 1;
 
     directionalLight.castShadow = true;
 
@@ -47,11 +50,11 @@ function main() {
   function setSpotLight(x, y, z) {
     var spotLight = new THREE.SpotLight('rgb(255,255,255)');
     spotLight.position.set(x, y, z);
-    spotLight.intensity = 2.
+    spotLight.intensity = 1.
     spotLight.decay = 2;
     spotLight.penumbra = 0.5;
 
-    // spotLight.castShadow = true;
+    spotLight.castShadow = true;
 
     spotLight.shadow.mapSize.width = 2048;
     spotLight.shadow.mapSize.height = 2048;
@@ -85,13 +88,7 @@ function main() {
   // create the ground plane
   var planeGeometry = new THREE.PlaneGeometry(8000, 8000);
   planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
-  var planeMaterial = new THREE.MeshBasicMaterial({
-    color: 'rgb(150, 150, 150)',
-    side: THREE.DoubleSide,
-    polygonOffset: true,
-    polygonOffsetFactor: 1, // positive value pushes polygon further away
-    polygonOffsetUnits: 1,
-  });
+  var planeMaterial = new THREE.MeshPhongMaterial({color: 'rgb(102,108,100)'});
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
   plane.receiveShadow = true;
 
@@ -376,6 +373,7 @@ function main() {
 
     convexGeometry = new THREE.ConvexBufferGeometry(localPoints);
     object = new THREE.Mesh(convexGeometry, objectMaterial);
+    object.receiveShadow = true;
     object.castShadow = true;
     object.visible = true;
     object.position.x = x;
@@ -384,14 +382,14 @@ function main() {
   }
 
   function criarMontanhaMaior(x = 220, y = 60) {
-    criamontanha(x, y, 20, 85, 'white');
-    criamontanha(x - 10, y, 40, 65);
-    criamontanha(x + 10, y, 50, 60);
+    criamontanha(x, y, 60, 100);
+    criamontanha(x - 10, y, 60, 90);
+    criamontanha(x + 10, y, 60, 95);
   }
 
   function criarMontanhaMenor(x = 550, y = 145) {
-    criamontanha(x, y, 15, 30, 'rgb(100,70,20)');
-    criamontanha(x + 5, y + 5, 10, 20, 'rgb(100,70,20)');
+    criamontanha(x, y, 15, 30);
+    criamontanha(x + 5, y + 5, 10, 20);
   }
 
   // === objeto exportado ===
@@ -507,17 +505,21 @@ function main() {
 
     isInspecao = !isInspecao;
 
-    axesHelper.visible = false;
-
     if (isInspecao) {
       posicaoCarro.copy(p1.position);
 
       p1.position.copy(new THREE.Vector3());
 
-      camera.position.copy(pos);
-      camera.lookAt(p1.position);
+      let offset = new THREE.Vector3(45, 0, 20);
+      offset.add(p1.position);
+
+      let offSetLookAt = p1.position
+
+      camera.position.copy(offset);
+      camera.lookAt(offSetLookAt);
 
       plane.visible = false;
+      axesHelper.visible = false;
 
     } else {
       p1.position.copy(posicaoCarro)
