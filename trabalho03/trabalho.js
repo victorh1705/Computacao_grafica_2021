@@ -22,9 +22,9 @@ function main() {
   function setPointLight(x, y) {
     //const pointLight = new THREE.PointLight('rgb(255,255,255)', 0.5, 300, 2);
     //pointLight.position.set(x, y, 23);
-    const spot = setSpotLight(x,y,23);
+    const spot = setSpotLight(x, y, 23);
 
-    var lightPosition = new THREE.Vector3(x, y,25.6);
+    var lightPosition = new THREE.Vector3(x, y, 25.6);
     var lightSphere = createLightSphere(scene, 0.8, 10, 10, lightPosition);
     // Criando o poste
     var poste = createStake(0.8, 1.8, 26, 20, 4, false, x, y);
@@ -72,11 +72,8 @@ function main() {
 
   let sun = setDirectionalLighting(-100, -200, 400);
   scene.add(sun);
-  // scene.add(new THREE.CameraHelper(sun.shadow.camera))
   // scene.add(new THREE.DirectionalLightHelper(sun))
 
-  let spotlight = setSpotLight(-40, -0, 40);
-  camera.add(spotlight);
 
 
   // Show text information onscreen
@@ -96,26 +93,26 @@ function main() {
   var textureLoader = new THREE.TextureLoader();
 
 
-  var tpista  = textureLoader.load('./imgs/sand.jpg');
-  var floor  = textureLoader.load('./imgs/pista.jpg');
+  var tpista = textureLoader.load('./imgs/sand.jpg');
+  var floor = textureLoader.load('./imgs/pista.jpg');
 
   var planeGeometry = new THREE.PlaneGeometry(600, 600);
   planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
-  var planeMaterial = new THREE.MeshLambertMaterial({color:"rgb(255,255,255)",side:THREE.DoubleSide});
+  var planeMaterial = new THREE.MeshLambertMaterial({color: 'rgb(255,255,255)', side: THREE.DoubleSide});
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
   plane.receiveShadow = true;
   scene.add(plane);
   plane.material.map = floor;
 
   // Criando a estensão da pista
-  var etpista = new THREE.PlaneGeometry(1200,1200);
-  etpista.translate(0,0,-0.12);
-  var etpistaMaterial = new THREE.MeshLambertMaterial({color:"rgb(255,255,255)",side:THREE.DoubleSide});
-  var pista = new THREE.Mesh(etpista,etpistaMaterial);
+  var etpista = new THREE.PlaneGeometry(1200, 1200);
+  etpista.translate(0, 0, -0.12);
+  var etpistaMaterial = new THREE.MeshLambertMaterial({color: 'rgb(255,255,255)', side: THREE.DoubleSide});
+  var pista = new THREE.Mesh(etpista, etpistaMaterial);
   pista.receiveShadow = true
   scene.add(pista);
   pista.material.map = tpista;
-  pista.material.map.repeat.set(4,4);
+  pista.material.map.repeat.set(4, 4);
   pista.material.map.wrapS = THREE.RepeatWrapping;
   pista.material.map.wrapT = THREE.RepeatWrapping;
 
@@ -291,6 +288,13 @@ function main() {
   var cubeAxesHelper = new THREE.AxesHelper(9);
   cube.add(cubeAxesHelper);
 
+
+  let spotlight = setSpotLight(0, 0, 40);
+  spotlight.position.copy(camera.position)
+  spotlight.target = p1
+  scene.add(new THREE.CameraHelper(spotlight.shadow.camera))
+  camera.add(spotlight);
+
   // Listen window size changes
   window.addEventListener('resize', function () {
     onWindowResize(camera, renderer)
@@ -415,11 +419,11 @@ function main() {
 
   function criarMontanhaMenor(x = 550, y = 145) {
     criamontanha(x, y, 35, 50);
-    criamontanha(x + 5, y + 5, 30,40);
+    criamontanha(x + 5, y + 5, 30, 40);
   }
 
   // === objeto exportado ===
-  function criarEstatua(x, y,caminho,escala) {
+  function criarEstatua(x, y, caminho, escala) {
     var loader = new THREE.GLTFLoader();
     loader.load(caminho, function (gltf) {
       var obj = gltf.scene;
@@ -448,7 +452,7 @@ function main() {
   criarMontanhaMaior(-4, -4);
   criarMontanhaMenor(250, 80);
 
-  criarEstatua(-160, 160,'./assets/objects/mario/scene.gltf',80);
+  criarEstatua(-160, 160, './assets/objects/mario/scene.gltf', 80);
 
   let postes = []
 
@@ -598,7 +602,9 @@ function main() {
     camera.lookAt(position);
 
     p1.add(camera);
-    lightFollowingCamera(spotlight, camera)
+
+    spotlight.position.copy(camera.position);
+    // spotlight.target.p1.position);
   }
 
 
