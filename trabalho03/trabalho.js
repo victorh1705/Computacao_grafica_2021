@@ -14,6 +14,7 @@ function main() {
 
   var isInspecao = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
+  var posicaoCamera = new THREE.Vector3();
   var objs = []
 
   // === Luz ===
@@ -99,6 +100,7 @@ function main() {
   // Show axes (parameter is size of each axis)
   var axesHelper = new THREE.AxesHelper(12);
   scene.add(axesHelper);
+  objs.push(axesHelper)
 
   // create the ground plane
   var textureLoader = new THREE.TextureLoader();
@@ -112,9 +114,11 @@ function main() {
   planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
   var planeMaterial = new THREE.MeshLambertMaterial({color: 'rgb(255,255,255)', side: THREE.DoubleSide});
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
   plane.receiveShadow = true;
-  scene.add(plane);
   plane.material.map = floor;
+
+  scene.add(plane);
 
   // Criando a estensão da pista
   var etpista = new THREE.PlaneGeometry(1200, 1200);
@@ -127,6 +131,11 @@ function main() {
   pista.material.map.repeat.set(4, 4);
   pista.material.map.wrapS = THREE.RepeatWrapping;
   pista.material.map.wrapT = THREE.RepeatWrapping;
+
+  objs.push(plane);
+  objs.push(tpista);
+  objs.push(floor);
+  objs.push(pista);
 
   // create a cube
   var cubeGeometry = new THREE.CylinderGeometry(4, 4, 4);
@@ -619,44 +628,34 @@ function main() {
 
   function changeProjection() {
     // posicao anterior
-    let pos = new THREE.Vector3().copy(camera.position);
-
     isInspecao = !isInspecao;
 
     if (isInspecao) {
       posicaoCarro.copy(p1.position);
+      posicaoCamera.copy(camera.position)
 
       p1.position.copy(new THREE.Vector3());
 
       let offset = new THREE.Vector3(45, 0, 20);
       offset.add(p1.position);
 
-      let offSetLookAt = p1.position
+      let offSetLookAt = p1.position;
 
       camera.position.copy(offset);
       camera.lookAt(offSetLookAt);
 
-      plane.visible = false;
-      axesHelper.visible = false;
-
-      objs.forEach(item => item.visible = false)
+      objs.forEach(item => item.visible = false);
 
     } else {
-      p1.position.copy(posicaoCarro)
-
-      let offset = new THREE.Vector3(-45, 0, 20);
-      offset.add(p1.position);
+      p1.position.copy(posicaoCarro);
 
       let offSetLookAt = new THREE.Vector3(60, 0, 10);
       offSetLookAt.add(p1.position);
 
-      camera.position.copy(offset);
+      camera.position.copy(posicaoCamera);
       camera.lookAt(offSetLookAt);
 
-      plane.visible = true;
-      axesHelper.visible = true;
-
-      objs.forEach(item => item.visible = true)
+      objs.forEach(item => item.visible = true);
     }
 
 
@@ -683,7 +682,6 @@ function main() {
     p1.add(camera);
 
     spotlight.position.copy(camera.position);
-    // spotlight.target.p1.position);
   }
 
 
