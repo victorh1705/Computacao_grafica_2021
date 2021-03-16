@@ -23,18 +23,18 @@ function main() {
   // Construindo os postes
   function setPointLight(x, y) {
     // Configurando o spot no lugar da PointLight
-    const pointLight = new THREE.SpotLight(0xffffff);
-    pointLight.position.set(x, y, 26);
-    pointLight.intensity = 1;
-    pointLight.decay = 1;
-    pointLight.penumbra = 0.5;
-    pointLight.rotateY(degreesToRadians(90));
+    const light = new THREE.SpotLight(0xffffff);
+    light.position.set(x, y, 26);
+    light.intensity = 1;
+    light.decay = 1;
+    light.penumbra = 0.5;
+    light.rotateY(degreesToRadians(90));
 
-    pointLight.angle = 0.1;
-    pointLight.distance = 400;
+    light.angle = 0.1;
+    light.distance = 400;
 
     // Criando a lâmpada
-    var lightPosition = new THREE.Vector3(x, y, 28);
+    var lightPosition = new THREE.Vector3(x, y, 24);
     var lightSphere = createLightSphere(scene, 1, 10, 10, lightPosition);
 
     // Criando o poste
@@ -43,7 +43,7 @@ function main() {
     objs.push(lightSphere);
     objs.push(poste);
 
-    return {pointLight, poste, lightSphere};
+    return {light, poste, lightSphere};
   }
 
   // Construção da luz direcional
@@ -54,6 +54,7 @@ function main() {
 
     directionalLight.castShadow = true;
 
+    directionalLight.shadow.camera.far = 2000;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
 
@@ -77,12 +78,10 @@ function main() {
     return spotLight;
   }
 
-  let sun = setDirectionalLighting(-100, -200, 400);
+  let sun = setDirectionalLighting(-200, -400, 600);
   scene.add(sun);
-  // scene.add(new THREE.CameraHelper(sun.shadow.camera))
-  // scene.add(new THREE.DirectionalLightHelper(sun))
 
-  let spotlight = setSpotLight(-40, -0, 40);
+  let spotlight = setSpotLight(-150, 0, 50);
   camera.add(spotlight);
 
 
@@ -225,7 +224,6 @@ function main() {
 
       return this.speed;
     },
-
   }
 
 
@@ -337,13 +335,6 @@ function main() {
 
   var cubeAxesHelper = new THREE.AxesHelper(9);
   cube.add(cubeAxesHelper);
-
-
-  // let spotlight = setSpotLight(0, 0, 40);
-  // spotlight.position.copy(camera.position)
-  // spotlight.target = p1
-  // scene.add(new THREE.CameraHelper(spotlight.shadow.camera))
-  // camera.add(spotlight);
 
   // Listen window size changes
   window.addEventListener('resize', function () {
@@ -596,7 +587,6 @@ function main() {
         c4.rotateZ(angle / 4);
       }
     }
-    console.log('cont : ', cont)
 
     if (isInspecao) {
       if (keyboard.pressed('D')) p1.rotateZ(-angle);
