@@ -323,7 +323,7 @@ function main() {
   // Criação do Eixo dianteiro
   var c4 = createCylinder(0.3, 6, 0x708090);
   p1.add(c4);
-  c4.position.set(4, 0, 0);
+  c4.position.set(3, 0, 0);
 
   var c5 = createCylinder(1, 1, 0x1C1C1C);
   c5.position.set(0, 3.0, 0);
