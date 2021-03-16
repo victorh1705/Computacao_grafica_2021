@@ -6,13 +6,14 @@ function main() {
   var position = new THREE.Vector3(-150, 0, 50);
   var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
   camera.position.copy(position);
-  // camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
+  camera.lookAt(new THREE.Vector3(0, 0, 0)); // or camera.lookAt(0, 0, 0);
   camera.up.set(0, 0, 1); // That's the default value
 
 
   var cont = 0
 
   var isInspecao = false;
+  var isPilotView = false;
   var posicaoCarro = new THREE.Vector3(0, 0, 1);
   var posicaoCamera = new THREE.Vector3();
   var objs = []
@@ -31,9 +32,6 @@ function main() {
 
     pointLight.angle = 0.1;
     pointLight.distance = 400;
-
-    //pointLight.castShadow = true;
-
 
     // Criando a lâmpada
     var lightPosition = new THREE.Vector3(x, y, 28);
@@ -123,8 +121,12 @@ function main() {
   // Criando a estensão da pista
   var etpista = new THREE.PlaneGeometry(1200, 1200);
   etpista.translate(0, 0, -0.22);
-  var etpistaMaterial = new THREE.MeshLambertMaterial({color: 'rgb(255,255,255)', side: THREE.DoubleSide});
-  var pista = new THREE.Mesh(etpista, etpistaMaterial);
+  var pista = new THREE.Mesh(etpista,
+    new THREE.MeshLambertMaterial({
+        color: 'rgb(255,255,255)',
+        side: THREE.DoubleSide,
+      },
+    ));
   pista.receiveShadow = true
   scene.add(pista);
   pista.material.map = tpista;
@@ -571,6 +573,7 @@ function main() {
     keyboard.update();
 
     if (keyboard.down('space')) changeProjection();
+    if (keyboard.down('E')) changeCamera();
 
     if (keyboard.pressed('right')) {
       if (cont > -10) {
@@ -623,6 +626,7 @@ function main() {
     controls.add('Use keyboard arrows to move the cube.');
     controls.add('Press Page Up or Page down to move the cube over the Z axis');
     controls.add('Press \'A\' and \'D\' to rotate.');
+    controls.add('Press \'E\' to change the camera.');
     controls.show();
   }
 
@@ -651,6 +655,8 @@ function main() {
 
       offset = new THREE.Vector3();
       offset.copy(posicaoCamera)
+
+      isPilotView = false;
     }
     camera.position.copy(offset);
     camera.lookAt(offSetLookAt);
@@ -660,6 +666,42 @@ function main() {
 
     let up = new THREE.Vector3(0, 0, 1);
     camera.up.copy(up);
+
+    trackballControls = initTrackballControls(camera, renderer);
+  }
+
+  function changeCamera() {
+    // posicao anterior
+    isPilotView = !isPilotView;
+
+    let offset;
+    let offSetLookAt;
+
+    if (isPilotView) {
+      posicaoCamera.copy(camera.position)
+
+      p1.position.copy(new THREE.Vector3());
+
+      offset = new THREE.Vector3(-25, 0, 10);
+      offset.add(p1.position);
+
+      offSetLookAt = new THREE.Vector3(60, 60, 0);
+      offSetLookAt.add(p1.position)
+    } else {
+      p1.position.copy(posicaoCarro);
+
+      offset.copy(new THREE.Vector3(posicaoCamera))
+
+      offSetLookAt = new THREE.Vector3(60, 0, 10);
+      offSetLookAt.add(p1.position);
+    }
+    camera.position.copy(offset);
+    camera.target = new THREE.Vector3(offSetLookAt)
+
+    objs.forEach(item => item.visible = !isInspecao);
+
+
+    camera.up.copy(new THREE.Vector3(0, 0, 1));
 
     trackballControls = initTrackballControls(camera, renderer);
   }
