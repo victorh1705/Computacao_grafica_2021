@@ -163,6 +163,7 @@ function main() {
     maxAcc: .5,
     maxSpeed: 3,
     maxReverse: 0.35,
+    maxSpeedReverse: 1.5,
 
     friction: 0.05,
     frictionOnTurn: 3 * this.friction,
@@ -188,9 +189,9 @@ function main() {
     },
 
     reverse: function () {
-      if (this.acceleration + this.speed > this.maxSpeed) {
-        this.speed = this.maxSpeed;
-      } else if (this.acceleration > -this.maxReverse) {
+      if (this.acceleration + this.speed <= -this.maxSpeedReverse) {
+        this.speed = -this.maxSpeedReverse;
+      } else if (this.acceleration <= -this.maxReverse) {
         this.acceleration -= this.accelerationRate;
         this.speed += this.acceleration;
       }
