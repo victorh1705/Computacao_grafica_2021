@@ -20,19 +20,31 @@ function main() {
 
   // Construindo os postes
   function setPointLight(x, y) {
-    //const pointLight = new THREE.PointLight('rgb(255,255,255)', 0.5, 300, 2);
-    //pointLight.position.set(x, y, 23);
-    const spot = setSpotLight(x, y, 23);
+    // Configurando o spot no lugar da PointLight
+    const pointLight = new THREE.SpotLight(0xffffff);
+    pointLight.position.set(x, y, 26);
+    pointLight.intensity = 1;
+    pointLight.decay = 1;
+    pointLight.penumbra = 0.5;
+    pointLight.rotateY(degreesToRadians(90));
 
-    var lightPosition = new THREE.Vector3(x, y, 25.6);
-    var lightSphere = createLightSphere(scene, 0.8, 10, 10, lightPosition);
+    pointLight.angle = 0.1;
+    pointLight.distance = 400;
+
+    //pointLight.castShadow = true;
+
+
+    // Criando a lâmpada
+    var lightPosition = new THREE.Vector3(x, y, 28);
+    var lightSphere = createLightSphere(scene, 1, 10, 10, lightPosition);
+
     // Criando o poste
     var poste = createStake(0.8, 1.8, 26, 20, 4, false, x, y);
 
     objs.push(lightSphere);
     objs.push(poste);
 
-    return {spot, poste, lightSphere};
+    return {pointLight, poste, lightSphere};
   }
 
   // Construção da luz direcional
@@ -66,14 +78,13 @@ function main() {
     return spotLight;
   }
 
-  var rgbeLoader = new THREE.RGBELoader();
-  const bgLoad = rgbeLoader.load('imgs/goegap_1k.hdr');
-  scene.background = bgLoad;
-
   let sun = setDirectionalLighting(-100, -200, 400);
   scene.add(sun);
+  // scene.add(new THREE.CameraHelper(sun.shadow.camera))
   // scene.add(new THREE.DirectionalLightHelper(sun))
 
+  let spotlight = setSpotLight(-40, -0, 40);
+  camera.add(spotlight);
 
 
   // Show text information onscreen
@@ -91,8 +102,9 @@ function main() {
 
   // create the ground plane
   var textureLoader = new THREE.TextureLoader();
-
-
+  var roda = textureLoader.load('./imgs/roda.jpg');
+  var lataria = textureLoader.load('./imgs/carro.jpg');
+  var banco = textureLoader.load('./imgs/couro.jpg');
   var tpista = textureLoader.load('./imgs/sand.jpg');
   var floor = textureLoader.load('./imgs/pista.jpg');
 
@@ -106,7 +118,7 @@ function main() {
 
   // Criando a estensão da pista
   var etpista = new THREE.PlaneGeometry(1200, 1200);
-  etpista.translate(0, 0, -0.12);
+  etpista.translate(0, 0, -0.22);
   var etpistaMaterial = new THREE.MeshLambertMaterial({color: 'rgb(255,255,255)', side: THREE.DoubleSide});
   var pista = new THREE.Mesh(etpista, etpistaMaterial);
   pista.receiveShadow = true
@@ -139,7 +151,9 @@ function main() {
     accelerationRate: 0.05,
 
     maxAcc: .5,
+    maxSpeed: 3,
     maxReverse: 0.35,
+
     friction: 0.05,
     frictionOnTurn: 3 * this.friction,
 
@@ -149,23 +163,30 @@ function main() {
     maxAngle: 10,
 
     accelerate: function () {
-      if (this.acceleration < this.maxAcc) {
-        this.acceleration += this.accelerationRate
-        this.speed = this.speed + this.acceleration - this.friction
-      }
+      this.acceleration = (this.acceleration + this.accelerationRate < this.maxAcc)
+        ? this.acceleration += this.accelerationRate
+        : this.maxAcc;
+
       this.direction = FRONT
+
+      this.speed = (this.speed + this.acceleration > this.maxSpeed)
+        ? this.maxSpeed
+        : this.speed + this.acceleration;
 
       return this.speed
     },
 
     reverse: function () {
-      if (this.acceleration > -this.maxReverse) {
-        this.acceleration -= this.accelerationRate
-        this.speed = this.speed + this.acceleration - (-1 * this.friction)
+      if (this.acceleration + this.speed > this.maxSpeed) {
+        this.speed = this.maxSpeed;
+      } else if (this.acceleration > -this.maxReverse) {
+        this.acceleration -= this.accelerationRate;
+        this.speed += this.acceleration;
       }
-      this.direction = REVERSE
+      this.speed -= this.friction;
+      this.direction = REVERSE;
 
-      return this.speed
+      return this.speed;
     },
 
     getSpeed: function (turning = false) {
@@ -219,42 +240,55 @@ function main() {
   var p5 = createCube(0.4, 2.8, 1.6, 0x0000CD);
   p1.add(p5);
   p5.position.set(3.8, 0, 1);
+  p5.material.map = lataria;
+
   //frente
   var p6 = createCube(0.4, 2.8, 1.6, 0x0000CD);
   p1.add(p6);
   p6.position.set(-1.8, 0, 1);
+  p6.material.map = lataria;
+
   //dir
   var p7 = createCube(6, 0.4, 1.6, 0x191970);
   p1.add(p7);
   p7.position.set(1, 1.6, 1);
+  p7.material.map = lataria;
+
   //esq
   var p8 = createCube(6, 0.4, 1.6, 0x191970);
   p1.add(p8);
   p8.position.set(1, -1.6, 1);
+  p8.material.map = lataria;
 
   // Proteção da frente
   var p9 = createCube(1.4, 5, 1, 0x191970);
   p1.add(p9);
-  p9.position.set(-3.4, 0, 0);
+  p9.position.set(-3.4, 0, 0.1);
+  p9.material.map = lataria;
+
   // complemento
   var p10 = createCube(2, 3.6, 1.6, 0x191970);
   p1.add(p10);
   p10.position.set(5, 0, 1);
+  p10.material.map = lataria;
 
   // Proteção da frente
   var p11 = createCube(2, 5, 1, 0x191970);
   p1.add(p11);
   p11.position.set(5, 0, 0);
+  p11.material.map = lataria;
 
   //bancos
   //assento
   var p12 = createCube(2, 2, 1, 0xa0a0a0);
   p1.add(p12);
   p12.position.set(0, 0, 1);
+  p12.material.map = banco;
   // encosto
   var p13 = createCube(0.4, 2, 3, 0xa0a0a0);
   p1.add(p13);
   p13.position.set(-1, 0, 2);
+  p13.material.map = banco;
 
   // vermelho, verde e azul (x,y,z)
 
@@ -267,10 +301,12 @@ function main() {
   var c2 = createCylinder(1, 1, 0x1C1C1C);
   c2.position.set(0, 3.0, 0);
   c1.add(c2);
+  c2.material.map = roda;
 
   var c3 = createCylinder(1, 1, 0x1C1C1C);
   c1.add(c3);
   c3.position.set(0, -3.0, 0);
+  c3.material.map = roda;
 
   // Criação do Eixo dianteiro
   var c4 = createCylinder(0.3, 6, 0x708090);
@@ -280,20 +316,22 @@ function main() {
   var c5 = createCylinder(1, 1, 0x1C1C1C);
   c5.position.set(0, 3.0, 0);
   c4.add(c5);
+  c5.material.map = roda;
 
   var c6 = createCylinder(1, 1, 0x1C1C1C);
   c6.position.set(0, -6, 0);
   c5.add(c6);
+  c6.material.map = roda;
 
   var cubeAxesHelper = new THREE.AxesHelper(9);
   cube.add(cubeAxesHelper);
 
 
-  let spotlight = setSpotLight(0, 0, 40);
-  spotlight.position.copy(camera.position)
-  spotlight.target = p1
-  scene.add(new THREE.CameraHelper(spotlight.shadow.camera))
-  camera.add(spotlight);
+  // let spotlight = setSpotLight(0, 0, 40);
+  // spotlight.position.copy(camera.position)
+  // spotlight.target = p1
+  // scene.add(new THREE.CameraHelper(spotlight.shadow.camera))
+  // camera.add(spotlight);
 
   // Listen window size changes
   window.addEventListener('resize', function () {
@@ -302,18 +340,39 @@ function main() {
 
   buildInterface();
   render();
+  skybox();
 
+  function skybox() {
+    let materialArray = [];
+    let texture_ft = new THREE.TextureLoader().load('./skybox/arid2_ft.jpg');
+    let texture_bk = new THREE.TextureLoader().load('./skybox/arid2_bk.jpg');
+    let texture_up = new THREE.TextureLoader().load('./skybox/arid2_up.jpg');
+    let texture_dn = new THREE.TextureLoader().load('./skybox/arid2_dn.jpg');
+    let texture_rt = new THREE.TextureLoader().load('./skybox/arid2_rt.jpg');
+    let texture_lf = new THREE.TextureLoader().load('./skybox/arid2_lf.jpg');
+
+    materialArray.push(new THREE.MeshBasicMaterial({map: texture_ft}));
+    materialArray.push(new THREE.MeshBasicMaterial({map: texture_bk}));
+    materialArray.push(new THREE.MeshBasicMaterial({map: texture_up}));
+    materialArray.push(new THREE.MeshBasicMaterial({map: texture_dn}));
+    materialArray.push(new THREE.MeshBasicMaterial({map: texture_rt}));
+    materialArray.push(new THREE.MeshBasicMaterial({map: texture_lf}));
+
+    for (let i = 0; i < 6; i++) {
+      materialArray[i].side = THREE.BackSide;
+    }
+
+    let skyboxGeo = new THREE.BoxGeometry(6000, 6000, 6000);
+    let skybox = new THREE.Mesh(skyboxGeo, materialArray);
+    scene.add(skybox);
+    skybox.rotateX(degreesToRadians(90));
+  }
 
   function createCylinder(d, l, color) {
     // diamentro,diametro,largura
     let cylinder = new THREE.Mesh(
       new THREE.CylinderGeometry(d, d, l, 32),
-      new THREE.MeshPhongMaterial({
-        ambient: 0x050505,
-        color: color,
-        specular: 0x555555,
-        shininess: 30,
-      }),
+      new THREE.MeshLambertMaterial({color: 'rgb(46,52,57)', side: THREE.DoubleSide}),
     );
 
     cylinder.castShadow = true;
@@ -423,14 +482,31 @@ function main() {
   }
 
   // === objeto exportado ===
-  function criarEstatua(x, y, caminho, escala) {
+  function criarEstatua(x, y, z, caminho, escala, girax, giray, giraz) {
     var loader = new THREE.GLTFLoader();
     loader.load(caminho, function (gltf) {
       var obj = gltf.scene;
 
+      gltf.scene.traverse(function (node) {
+
+        if (node.isMesh) {
+          node.castShadow = true;
+        }
+
+      });
+
       obj.castShadow = true;
       obj.receiveShadow = true;
-      obj.rotateX(degreesToRadians(90));
+
+      if (girax != 0) {
+        obj.rotateX(degreesToRadians(girax));
+      }
+      if (giraz != 0) {
+        obj.rotateZ(degreesToRadians(giraz));
+      }
+      if (giray != 0) {
+        obj.rotateY(degreesToRadians(giray));
+      }
 
       var newScale = escala;
       var scale = getMaxSize(obj); // Available in 'utils.js'
@@ -443,6 +519,7 @@ function main() {
 
       obj.position.x = x;
       obj.position.y = y;
+      obj.position.z = z;
 
       scene.add(obj);
       objs.push(obj);
@@ -452,7 +529,9 @@ function main() {
   criarMontanhaMaior(-4, -4);
   criarMontanhaMenor(250, 80);
 
-  criarEstatua(-160, 160, './assets/objects/mario/scene.gltf', 80);
+  criarEstatua(180, -130, -20, './assets/objects/link/scene.gltf', 80, 90, 180, 0);
+  criarEstatua(-180, -140, 18, './assets/objects/cogumelo/scene.gltf', 40, 90, -90, 0);
+  criarEstatua(-160, 160, 0, './assets/objects/mario/scene.gltf', 80, 90, 0, 0);
 
   let postes = []
 
