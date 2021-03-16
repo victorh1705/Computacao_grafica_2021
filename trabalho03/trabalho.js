@@ -170,8 +170,9 @@ function main() {
 
     direction: FRONT,
 
+    maxRotation: 25,
     angle: 2.5,
-    maxAngle: 10,
+    maxAngle: 10.,
 
     accelerate: function () {
       this.acceleration = (this.acceleration + this.accelerationRate < this.maxAcc)
@@ -576,18 +577,26 @@ function main() {
     if (keyboard.down('E')) changeCamera();
 
     if (keyboard.pressed('right')) {
-      if (cont > -10) {
+      if (cont > -car.maxRotation) {
         cont--
         c4.rotateZ(-angle / 4);
       }
-    }
-
-    if (keyboard.pressed('left')) {
-      if (cont < 10) {
+    } else if (keyboard.pressed('left')) {
+      if (cont < car.maxRotation) {
+        cont++
+        c4.rotateZ(angle / 4);
+      }
+    } else {
+      // volta ao normal sem virar
+      if (cont > 0) {
+        cont--
+        c4.rotateZ(-angle / 4);
+      } else if (cont < 0) {
         cont++
         c4.rotateZ(angle / 4);
       }
     }
+    console.log('cont : ', cont)
 
     if (isInspecao) {
       if (keyboard.pressed('D')) p1.rotateZ(-angle);
@@ -601,8 +610,7 @@ function main() {
         car.direction === FRONT
           ? p1.rotateZ(-angle)
           : p1.rotateZ(angle);
-      }
-      if (keyboard.pressed('left')) {
+      } else if (keyboard.pressed('left')) {
         car.direction === FRONT
           ? p1.rotateZ(angle)
           : p1.rotateZ(-angle);
