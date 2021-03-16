@@ -630,33 +630,32 @@ function main() {
     // posicao anterior
     isInspecao = !isInspecao;
 
+    let offset;
+    let offSetLookAt;
+
     if (isInspecao) {
       posicaoCarro.copy(p1.position);
       posicaoCamera.copy(camera.position)
 
       p1.position.copy(new THREE.Vector3());
 
-      let offset = new THREE.Vector3(45, 0, 20);
+      offSetLookAt = p1.position;
+
+      offset = new THREE.Vector3(45, 0, 20);
       offset.add(p1.position);
-
-      let offSetLookAt = p1.position;
-
-      camera.position.copy(offset);
-      camera.lookAt(offSetLookAt);
-
-      objs.forEach(item => item.visible = false);
-
     } else {
       p1.position.copy(posicaoCarro);
 
-      let offSetLookAt = new THREE.Vector3(60, 0, 10);
+      offSetLookAt = new THREE.Vector3(60, 0, 10);
       offSetLookAt.add(p1.position);
 
-      camera.position.copy(posicaoCamera);
-      camera.lookAt(offSetLookAt);
-
-      objs.forEach(item => item.visible = true);
+      offset = new THREE.Vector3();
+      offset.copy(posicaoCamera)
     }
+    camera.position.copy(offset);
+    camera.lookAt(offSetLookAt);
+
+    objs.forEach(item => item.visible = !isInspecao);
 
 
     let up = new THREE.Vector3(0, 0, 1);
