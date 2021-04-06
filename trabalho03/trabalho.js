@@ -553,7 +553,7 @@ function main() {
   postes.push(setPointLight(-260, 260))
 
   postes.forEach(item => {
-    scene.add(item.pointLight)
+    scene.add(item.light)
     scene.add(item.poste)
   });
 
@@ -566,7 +566,7 @@ function main() {
     keyboard.update();
 
     if (keyboard.down('space')) changeProjection();
-    if (keyboard.down('E')) changeCamera();
+    if (keyboard.down('E')) isPilotView = !isPilotView;
 
     if (keyboard.pressed('right')) {
       if (cont > -car.maxRotation) {
@@ -669,42 +669,6 @@ function main() {
     trackballControls = initTrackballControls(camera, renderer);
   }
 
-  function changeCamera() {
-    // posicao anterior
-    isPilotView = !isPilotView;
-
-    let offset;
-    let offSetLookAt;
-
-    if (isPilotView) {
-      posicaoCamera.copy(camera.position)
-
-      p1.position.copy(new THREE.Vector3());
-
-      offset = new THREE.Vector3(-25, 0, 10);
-      offset.add(p1.position);
-
-      offSetLookAt = new THREE.Vector3(60, 60, 0);
-      offSetLookAt.add(p1.position)
-    } else {
-      p1.position.copy(posicaoCarro);
-
-      offset.copy(new THREE.Vector3(posicaoCamera))
-
-      offSetLookAt = new THREE.Vector3(60, 0, 10);
-      offSetLookAt.add(p1.position);
-    }
-    camera.position.copy(offset);
-    camera.target = new THREE.Vector3(offSetLookAt)
-
-    objs.forEach(item => item.visible = !isInspecao);
-
-
-    camera.up.copy(new THREE.Vector3(0, 0, 1));
-
-    trackballControls = initTrackballControls(camera, renderer);
-  }
-
   function trackCar() {
 
     if (isInspecao) return
@@ -716,9 +680,20 @@ function main() {
     camera.matrixAutoUpdate = true;
     p1.matrixWorld.decompose(position, quaternion, scale);
 
-    camera.up.set(0, 0, 1);
-    camera.lookAt(position);
+    if (isPilotView) {
+      let offset = new THREE.Vector3(10, 0, 5);
+      offset.add(p2.position);
+      camera.position.copy(offset)
 
+      // let offsetLookAt = new THREE.Vector3(30, 0, 0);
+      // offsetLookAt.add(c4.position)
+      // camera.lookAt(offsetLookAt);
+    } else {
+      posicaoCamera.copy(camera)
+      camera.lookAt(position);
+    }
+
+    camera.up.set(0, 0, 1);
     p1.add(camera);
 
     spotlight.position.copy(camera.position);
